@@ -1,87 +1,102 @@
 const ROUTES = {
-  meals: "/meals",
-  products: "/products",
-  foodlog: "/foodlog",
+  meals: "meals",
+  products: "products",
+  foodlog: "foodlog",
 };
 
 let currentRoute = null;
 let routeListener = null;
 
-const normalizePath = (path) => {
-  const cleanPath = String(path || "/").split("?")[0].split("#")[0];
+const normalizeHash = (hash = window.location.hash) => {
+  const clean = String(hash || "")
+    .replace(/^#\/?/, "")
+    .split("?")[0]
+    .split("#")[0];
 
-  if (cleanPath === "/") {
+  if (!clean || clean === "meals") {
     return "/meals";
   }
 
-  const normalized = cleanPath.replace(/\/+$/, "");
+  if (clean === "products") {
+    return "/products";
+  }
 
-  return normalized || "/meals";
+  if (clean === "foodlog") {
+    return "/foodlog";
+  }
+
+  if (clean.startsWith("meals/")) {
+    return `/${clean}`;
+  }
+
+  return "/meals";
 };
 
-const getRouteFromPath = (path = window.location.pathname) => {
-  const normalizedPath = normalizePath(path);
+const getRouteFromHash = () => {
+  const normalized = normalizeHash();
 
-  if (normalizedPath === "/products") {
+  if (normalized === "/products") {
     return "products";
   }
 
-  if (normalizedPath === "/foodlog") {
+  if (normalized === "/foodlog") {
     return "foodlog";
   }
 
-  if (normalizedPath === "/meals") {
-    return "meals";
-  }
-
-  if (normalizedPath.startsWith("/meals/")) {
+  if (normalized.startsWith("/meals/")) {
     return "meal-details";
   }
 
   return "meals";
 };
 
-const getMealIdFromPath = (path = window.location.pathname) => {
-  const normalizedPath = normalizePath(path);
+const getMealIdFromHash = () => {
+  const normalized = normalizeHash();
 
-  if (!normalizedPath.startsWith("/meals/")) {
+  if (!normalized.startsWith("/meals/")) {
     return null;
   }
 
-  const mealId = normalizedPath.split("/")[2];
+  const mealId = normalized.slice("/meals/".length);
 
-  return mealId ? decodeURIComponent(mealId) : null;
+  if (!mealId) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(mealId);
+  } catch {
+    return null;
+  }
 };
 
 export const getCurrentRoute = () => {
-  return getRouteFromPath();
+  return getRouteFromHash();
 };
 
 export const getCurrentMealId = () => {
-  return getMealIdFromPath();
+  return getMealIdFromHash();
 };
 
 export const navigate = (path, options = {}) => {
-  const normalizedPath = normalizePath(path);
-  const { replace = false } = options;
+  const cleanPath = String(path || "").replace(/^\/+/, "");
+  const targetHash = `#/${cleanPath}`;
 
-  if (window.location.pathname === normalizedPath) {
+  if (window.location.hash === targetHash) {
     notifyRouteChange();
     return;
   }
 
-  if (replace) {
-    window.history.replaceState({}, "", normalizedPath);
+  if (options.replace) {
+    window.location.replace(targetHash);
   } else {
-    window.history.pushState({}, "", normalizedPath);
+    window.location.hash = targetHash;
   }
-
-  notifyRouteChange();
 };
 
 export const navigateTo = (route, options = {}) => {
-  const path = ROUTES[route] || ROUTES.meals;
-  navigate(path, options);
+  const target = ROUTES[route] || ROUTES.meals;
+  navigate(`/${target}`, options);
 };
 
 export const navigateToMeal = (mealId, options = {}) => {
@@ -94,8 +109,8 @@ export const navigateToMeal = (mealId, options = {}) => {
 };
 
 const notifyRouteChange = () => {
-  const route = getRouteFromPath();
-  const mealId = getMealIdFromPath();
+  const route = getRouteFromHash();
+  const mealId = getMealIdFromHash();
 
   if (
     currentRoute?.route === route &&
@@ -121,7 +136,7 @@ export const onRouteChange = (callback) => {
 
   routeListener = callback;
 
-  window.addEventListener("popstate", notifyRouteChange);
+  window.addEventListener("hashchange", notifyRouteChange);
 
   notifyRouteChange();
 };
@@ -131,13 +146,10 @@ export const getRoutes = () => ({
 });
 
 export const initRouter = () => {
-  const path = normalizePath(window.location.pathname);
-
-  if (window.location.pathname !== path) {
-    window.history.replaceState({}, "", path);
+  if (!window.location.hash || window.location.hash === "#") {
+    window.location.hash = "#/meals";
   }
-
-  notifyRouteChange();
+  return true;
 };
 
 export default {

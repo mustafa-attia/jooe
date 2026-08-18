@@ -27,7 +27,7 @@ const saveFoodLog = () => {
   try {
     localStorage.setItem(FOOD_LOG_KEY, JSON.stringify(state.foodLog));
   } catch {}
-}
+};
 
 export const state = {
   meals: [],

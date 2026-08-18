@@ -11,7 +11,7 @@ const clearFoodLogButton = document.getElementById("clear-foodlog");
 const foodLogDate = document.getElementById("foodlog-date");
 const mealDetails = document.getElementById("meal-details");
 const areasContainer = document.querySelector(
-  "#search-filters-section .flex.items-center.gap-3",
+  "#search-filters-section .flex.items-center.gap-3"
 );
 
 const escapeHtml = (value) => {
@@ -208,7 +208,7 @@ export const hideLoading = () => {
 
 export const showEmptyState = (
   message = "No recipes found",
-  description = "Try searching for something else",
+  description = "Try searching for something else"
 ) => {
   if (!recipesGrid) return;
 
@@ -231,7 +231,7 @@ export const showEmptyState = (
 
 export const renderErrorState = (
   message = "Something went wrong",
-  description = "Please try again later",
+  description = "Please try again later"
 ) => {
   if (!recipesGrid) return;
 
@@ -617,7 +617,7 @@ export const renderIngredients = (ingredients = []) => {
 
   const valid = Array.isArray(ingredients)
     ? ingredients.filter(
-        (item) => item && (item.ingredient || item.name || item.measure),
+        (item) => item && (item.ingredient || item.name || item.measure)
       )
     : [];
 
@@ -640,7 +640,7 @@ export const renderIngredients = (ingredients = []) => {
                   ${escapeHtml(ingredient.ingredient || ingredient.name || "")}
                 </span>
               </div>
-            `,
+            `
           )
           .join("")
       : `
@@ -726,7 +726,7 @@ export const renderInstructions = (instructions = []) => {
                 </p>
 
               </div>
-            `,
+            `
           )
           .join("")}
 
@@ -814,25 +814,16 @@ export const renderNutrition = (nutrition = {}) => {
   if (!container) return;
 
   const calories = Number(nutrition.calories) || 0;
-
   const protein = Number(nutrition.protein) || 0;
-
   const carbs = Number(nutrition.carbs) || 0;
-
   const fat = Number(nutrition.fat) || 0;
-
   const fiber = Number(nutrition.fiber) || 0;
-
   const sugar = Number(nutrition.sugar) || 0;
 
   const proteinPercent = Math.min((protein / 50) * 100, 100);
-
   const carbsPercent = Math.min((carbs / 250) * 100, 100);
-
   const fatPercent = Math.min((fat / 65) * 100, 100);
-
   const fiberPercent = Math.min((fiber / 25) * 100, 100);
-
   const sugarPercent = Math.min((sugar / 50) * 100, 100);
 
   container.innerHTML = `
@@ -1030,7 +1021,7 @@ const getWeekData = (foodLog = []) => {
 
     const calories = dayItems.reduce(
       (total, item) => total + normalizeFoodLogNumber(item?.calories),
-      0,
+      0
     );
 
     days.push({
@@ -1075,7 +1066,7 @@ export const renderFoodLog = (foodLog = []) => {
             type="button"
             data-foodlog-page="meals"
             id="browse_recipes"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all cursor-pointer"
           >
             <i class="fa-solid fa-plus"></i>
             Browse Recipes
@@ -1084,7 +1075,7 @@ export const renderFoodLog = (foodLog = []) => {
           <button
             type="button"
             data-foodlog-page="products"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all cursor-pointer"
           >
             <i class="fa-solid fa-barcode"></i>
             Scan Product
@@ -1222,7 +1213,7 @@ export const renderFoodLog = (foodLog = []) => {
 
                 <button
                   type="button"
-                  class="remove-foodlog-btn text-gray-400 hover:text-red-500 transition-all p-2"
+                  class="remove-foodlog-btn text-gray-400 hover:text-red-500 transition-all p-2 cursor-pointer"
                   data-item-id="${escapeHtml(item?.id ?? "")}"
                   title="Remove item"
                 >
@@ -1253,7 +1244,7 @@ export const renderNutritionSummary = (foodLog = []) => {
   if (!section) return;
 
   const progressGrid = section.querySelector(
-    ".grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4",
+    ".grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4"
   );
 
   if (!progressGrid) return;
@@ -1291,24 +1282,23 @@ export const renderNutritionSummary = (foodLog = []) => {
     goal,
     normalText,
     normalBar,
-    dangerText,
   }) => {
     const percentage = Math.min(Math.round((value / goal) * 100), 100);
 
     const exceeded = value > goal;
 
     const percentageElement = card.querySelector(
-      ".flex.items-center.justify-between.mb-2 span:last-child",
+      ".flex.items-center.justify-between.mb-2 span:last-child"
     );
 
     const bar = card.querySelector(".w-full.bg-gray-200 > div");
 
     const valueElement = card.querySelector(
-      ".flex.items-center.justify-between.text-xs span:first-child",
+      ".flex.items-center.justify-between.text-xs span:first-child"
     );
 
     const goalElement = card.querySelector(
-      ".flex.items-center.justify-between.text-xs span:last-child",
+      ".flex.items-center.justify-between.text-xs span:last-child"
     );
 
     if (percentageElement) {
@@ -1327,7 +1317,7 @@ export const renderNutritionSummary = (foodLog = []) => {
         "bg-blue-500",
         "bg-amber-500",
         "bg-purple-500",
-        "bg-red-500",
+        "bg-red-500"
       );
 
       bar.classList.add(exceeded ? "bg-red-500" : normalBar);
@@ -1356,7 +1346,6 @@ export const renderNutritionSummary = (foodLog = []) => {
     goal: goals.calories,
     normalText: "text-emerald-600",
     normalBar: "bg-emerald-500",
-    dangerText: "text-red-600",
   });
 
   updateCard({
@@ -1365,7 +1354,6 @@ export const renderNutritionSummary = (foodLog = []) => {
     goal: goals.protein,
     normalText: "text-blue-600",
     normalBar: "bg-blue-500",
-    dangerText: "text-red-600",
   });
 
   updateCard({
@@ -1374,7 +1362,6 @@ export const renderNutritionSummary = (foodLog = []) => {
     goal: goals.carbs,
     normalText: "text-amber-600",
     normalBar: "bg-amber-500",
-    dangerText: "text-red-600",
   });
 
   updateCard({
@@ -1383,7 +1370,6 @@ export const renderNutritionSummary = (foodLog = []) => {
     goal: goals.fat,
     normalText: "text-purple-600",
     normalBar: "bg-purple-500",
-    dangerText: "text-red-600",
   });
 };
 
@@ -1454,7 +1440,7 @@ export const renderWeeklyOverview = (foodLog = []) => {
             }
 
           </div>
-        `,
+        `
     )
     .join("");
 };
@@ -1475,7 +1461,7 @@ export const renderFoodLogStats = (foodLog = []) => {
   const daysOnGoal = days.filter((day) => day.calories >= 2000).length;
 
   const cards = section.querySelectorAll(
-    ".grid.grid-cols-1.md\\:grid-cols-3 > div",
+    ".grid.grid-cols-1.md\\:grid-cols-3 > div"
   );
 
   if (cards.length < 3) return;

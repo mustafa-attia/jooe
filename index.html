@@ -4,26 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NutriPlan - Food, Nutrition & Fitness Planner</title>
+
     <link rel="icon" href="./src/images/favicon.png" />
+
     <script>
       window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
     </script>
+
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"
       integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-    <script src="https://cdn.jsdelivr.net/ajax/libs/sweetalert2@11"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
     <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+
     <link rel="stylesheet" href="./src/css/index.css" />
     <link rel="stylesheet" href="./src/css/style.css" />
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
@@ -32,6 +41,7 @@
       referrerpolicy="no-referrer"
     />
   </head>
+
   <body class="bg-gray-50 font-sans">
     <div
       id="app-loading-overlay"
@@ -42,21 +52,27 @@
           <div
             class="absolute inset-0 rounded-xl bg-linear-to-br from-emerald-400 to-teal-600 animate-pulse"
           ></div>
+
           <div class="absolute inset-0 flex items-center justify-center">
             <i class="fa-solid fa-leaf text-white text-3xl animate-bounce"></i>
           </div>
         </div>
+
         <h2 class="text-2xl font-bold text-gray-900 mb-2">NutriPlan</h2>
+
         <p class="text-gray-500 mb-4">Loading your wellness journey...</p>
+
         <div class="flex items-center justify-center gap-1">
           <div
             class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
             style="animation-delay: 0ms"
           ></div>
+
           <div
             class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
             style="animation-delay: 150ms"
           ></div>
+
           <div
             class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
             style="animation-delay: 300ms"
@@ -78,14 +94,17 @@
           >
             <i class="fa-solid fa-leaf text-white text-lg"></i>
           </div>
+
           <div>
             <h1 class="text-xl font-bold text-gray-900">NutriPlan</h1>
             <p class="text-xs text-gray-500">Your Wellness Journey</p>
           </div>
+
           <button
             id="sidebar-close-btn"
             aria-label="Close menu"
             class="ml-auto"
+            type="button"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -99,6 +118,7 @@
           >
             Main Menu
           </p>
+
           <ul class="space-y-1">
             <li>
               <a
@@ -109,6 +129,7 @@
                 <span class="font-semibold">Meals & Recipes</span>
               </a>
             </li>
+
             <li>
               <a
                 class="nav-link flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
@@ -118,6 +139,7 @@
                 <span class="font-medium">Product Scanner</span>
               </a>
             </li>
+
             <li>
               <a
                 class="nav-link flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
@@ -138,10 +160,12 @@
             alt="User"
             class="w-10 h-10 rounded-full object-cover"
           />
+
           <div class="flex-1">
             <p class="font-semibold text-gray-900 text-sm">Youssef Amir</p>
             <p class="text-xs text-gray-500">Premium Member</p>
           </div>
+
           <i class="fa-solid fa-chevron-down text-gray-400 text-sm"></i>
         </div>
       </div>
@@ -155,13 +179,19 @@
         <div class="px-8 py-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4 flex-1">
-              <button id="header-menu-btn" aria-label="Toggle menu">
+              <button
+                id="header-menu-btn"
+                aria-label="Toggle menu"
+                type="button"
+              >
                 <i class="fa-solid fa-bars"></i>
               </button>
+
               <div>
                 <h1 class="text-2xl font-bold text-gray-900">
                   Meals & Recipes
                 </h1>
+
                 <p class="text-sm text-gray-500 mt-1">
                   Discover delicious and nutritious recipes tailored for you
                 </p>
@@ -181,6 +211,7 @@
               <i
                 class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               ></i>
+
               <input
                 id="search-input"
                 type="text"
@@ -190,9 +221,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-3 overflow-x-auto pb-2">
-            <!-- Area filter buttons are rendered by UI.renderAreas() -->
-          </div>
+          <div class="flex items-center gap-3 overflow-x-auto pb-2"></div>
         </div>
       </section>
 
@@ -203,15 +232,14 @@
               <h2 class="text-xl font-bold text-gray-900">
                 Browse by Meal Type
               </h2>
+
               <p class="text-xs text-gray-500 mt-0.5">
                 Find the perfect recipe for any time of day
               </p>
             </div>
           </div>
 
-          <div id="categories-grid" class="grid grid-cols-6 gap-3">
-            <!-- Categories are rendered by UI.renderCategories() -->
-          </div>
+          <div id="categories-grid" class="grid grid-cols-6 gap-3"></div>
         </div>
       </section>
 
@@ -220,15 +248,14 @@
           <div class="flex items-center justify-between mb-6">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">All Recipes</h2>
+
               <p id="recipes-count" class="text-sm text-gray-600 mt-1">
                 Showing 0 recipes
               </p>
             </div>
           </div>
 
-          <div id="recipes-grid" class="grid grid-cols-4 gap-5">
-            <!-- Recipes are rendered by UI.renderMeals() -->
-          </div>
+          <div id="recipes-grid" class="grid grid-cols-4 gap-5"></div>
         </div>
       </section>
 
@@ -236,9 +263,7 @@
         id="meal-details"
         class="px-8 py-8 bg-gray-50"
         style="display: none"
-      >
-        <!-- Meal detail content is rendered by UI.renderMealDetails() -->
-      </section>
+      ></section>
 
       <section
         id="products-section"
@@ -253,6 +278,7 @@
               <i class="fa-solid fa-barcode mr-2"></i>
               Product Search & Barcode Scanner
             </h2>
+
             <p class="opacity-90 mb-4">
               Search for packaged food products to view nutrition information
             </p>
@@ -265,10 +291,12 @@
                   placeholder="Search by product name (e.g., Cheerios, Nutella, Coca-Cola...)"
                   class="w-full px-5 py-3.5 pr-12 bg-white/90 backdrop-blur-sm text-gray-900 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
+
                 <i
                   class="fa-solid fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
                 ></i>
               </div>
+
               <button
                 id="search-product-btn"
                 type="button"
@@ -280,7 +308,9 @@
 
             <div class="flex items-center gap-4 mt-4">
               <div class="flex-1 h-px bg-white/30"></div>
-              <span class="text-sm opacity-80">or</span>
+
+              <span class="text-sm opacity-80"> or </span>
+
               <div class="flex-1 h-px bg-white/30"></div>
             </div>
 
@@ -292,24 +322,28 @@
                   placeholder="Enter barcode number (e.g., 7613034626844)"
                   class="w-full px-5 py-3.5 pr-12 bg-white/90 backdrop-blur-sm text-gray-900 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
+
                 <i
                   class="fa-solid fa-barcode absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
                 ></i>
               </div>
+
               <button
                 id="lookup-barcode-btn"
                 type="button"
                 class="px-6 py-3.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-all"
               >
-                <i class="fa-solid fa-search mr-2"></i>Lookup
+                <i class="fa-solid fa-search mr-2"></i>
+                Lookup
               </button>
             </div>
           </div>
 
           <div class="flex items-center gap-4 mb-6">
-            <span class="text-sm font-medium text-gray-700"
-              >Filter by Nutri-Score:</span
-            >
+            <span class="text-sm font-medium text-gray-700">
+              Filter by Nutri-Score:
+            </span>
+
             <div class="flex gap-2">
               <button
                 type="button"
@@ -318,6 +352,7 @@
               >
                 All
               </button>
+
               <button
                 type="button"
                 class="nutri-score-filter px-4 py-2 rounded-lg text-sm font-bold transition-all bg-green-100 text-green-700 hover:bg-green-200"
@@ -325,6 +360,7 @@
               >
                 A
               </button>
+
               <button
                 type="button"
                 class="nutri-score-filter px-4 py-2 rounded-lg text-sm font-bold transition-all bg-lime-100 text-lime-700 hover:bg-lime-200"
@@ -332,6 +368,7 @@
               >
                 B
               </button>
+
               <button
                 type="button"
                 class="nutri-score-filter px-4 py-2 rounded-lg text-sm font-bold transition-all bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
@@ -339,6 +376,7 @@
               >
                 C
               </button>
+
               <button
                 type="button"
                 class="nutri-score-filter px-4 py-2 rounded-lg text-sm font-bold transition-all bg-orange-100 text-orange-700 hover:bg-orange-200"
@@ -346,6 +384,7 @@
               >
                 D
               </button>
+
               <button
                 type="button"
                 class="nutri-score-filter px-4 py-2 rounded-lg text-sm font-bold transition-all bg-red-100 text-red-700 hover:bg-red-200"
@@ -360,17 +399,17 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-3">
               Browse by Category
             </h3>
+
             <div
               class="flex gap-3 overflow-x-auto pb-2"
               id="product-categories"
-            >
-              <!-- Product categories are rendered by UI.renderProductCategories() -->
-            </div>
+            ></div>
           </div>
 
           <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-xl font-bold text-gray-900">Search Results</h3>
+
               <p id="products-count" class="text-sm text-gray-600">
                 Search for products to see results
               </p>
@@ -379,16 +418,18 @@
             <div
               id="products-grid"
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
-            >
-              <!-- Products are rendered by UI.renderProducts() -->
-            </div>
+            ></div>
 
             <div id="products-pagination"></div>
           </div>
         </div>
       </section>
 
-      <section id="foodlog-section" class="px-8 py-8 bg-gray-50 min-h-screen">
+      <section
+        id="foodlog-section"
+        class="px-8 py-8 bg-gray-50 min-h-screen"
+        style="display: none"
+      >
         <div class="max-w-7xl mx-auto">
           <div
             class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-6 text-white"
@@ -604,7 +645,6 @@
         </div>
       </section>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script type="module" src="./src/js/main.js"></script>
   </body>
