@@ -1,20 +1,1259 @@
+/* ==========================================================================
+   JOOE — PERSONAL BRAND & DIGITAL IDENTITY
+   Luxury Editorial Aesthetic | Barcelona-Inspired Palette
+
+   70% Neutral Dark
+   15% Barcelona Blue
+   10% Barcelona Red
+   5% Premium Gold
+   ========================================================================== */
+
+:root {
+  /* ========================================================================
+     COLORS
+     ======================================================================== */
+
+  --jooe-dark-base: #07090d;
+  --jooe-dark-surface: #0a101a;
+  --jooe-dark-card: #101722;
+  --jooe-dark-card-hover: #141c2b;
+
+  --jooe-border: #202936;
+  --jooe-border-subtle: rgba(255, 255, 255, 0.07);
+  --jooe-border-focus: #2e3a4d;
+
+  --jooe-text-primary: #ffffff;
+  --jooe-text-secondary: #a7adb8;
+  --jooe-text-muted: #6b7280;
+
+  --jooe-blue: #004d98;
+  --jooe-blue-hover: #005bb8;
+  --jooe-blue-light: #70b4ff;
+  --jooe-blue-muted: rgba(0, 77, 152, 0.22);
+  --jooe-blue-border: rgba(0, 77, 152, 0.45);
+
+  --jooe-red: #a50044;
+  --jooe-red-hover: #c00050;
+  --jooe-red-light: #ff709b;
+  --jooe-red-muted: rgba(165, 0, 68, 0.2);
+  --jooe-red-border: rgba(165, 0, 68, 0.5);
+
+  --jooe-gold: #edbb00;
+  --jooe-gold-muted: rgba(237, 187, 0, 0.15);
+  --jooe-gold-border: rgba(237, 187, 0, 0.3);
+
+  /* ========================================================================
+     TYPOGRAPHY
+     ======================================================================== */
+
+  --font-editorial:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+
+  /* ========================================================================
+     GEOMETRY
+     ======================================================================== */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* ========================================================================
+     MOTION
+     ======================================================================== */
+
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --transition-quick: 0.2s var(--ease-editorial);
+  --transition-smooth: 0.4s var(--ease-editorial);
+}
+
+
+/* ==========================================================================
+   GLOBAL
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--jooe-dark-base);
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--jooe-dark-base) !important;
+  color: var(--jooe-text-primary) !important;
+  font-family: var(--font-editorial) !important;
+
+  min-height: 100vh;
+  overflow-x: hidden !important;
+
+  letter-spacing: 0;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--jooe-blue);
+  color: #ffffff;
+}
+
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--jooe-dark-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2230;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--jooe-blue);
+}
+
+
+/* ==========================================================================
+   SIDEBAR
+   ========================================================================== */
+
+#sidebar {
+  display: flex !important;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+
+  background-color: var(--jooe-dark-surface) !important;
+
+  border-right: 1px solid var(--jooe-border) !important;
+
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+
+  transition: transform 0.35s var(--ease-editorial);
+
+  z-index: 50;
+}
+
+.brand-monogram {
+  color: #ffffff;
+
+  font-family: var(--font-editorial);
+
+  font-size: 1.35rem;
+  font-weight: 900;
+
+  letter-spacing: -0.06em;
+}
+
+.brand-dot {
+  color: var(--jooe-red);
+}
+
+
+/* ==========================================================================
+   NAVIGATION
+   ========================================================================== */
+
+.nav-link {
+  position: relative;
+
+  color: var(--jooe-text-secondary) !important;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) !important;
+
+  font-size: 0.88rem;
+  font-weight: 500;
+
+  transition: all var(--transition-quick) !important;
+}
+
+.nav-link:hover {
+  color: #ffffff !important;
+
+  background-color: rgba(255, 255, 255, 0.03) !important;
+
+  border-color: rgba(255, 255, 255, 0.06);
+
+  transform: translateX(2px);
+}
+
+.nav-link.active-nav,
+.nav-link.bg-emerald-50 {
+  color: #ffffff !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(165, 0, 68, 0.2) 0%,
+      rgba(0, 77, 152, 0.08) 100%
+    ) !important;
+
+  border: 1px solid var(--jooe-blue-border) !important;
+}
+
+.nav-link.active-nav::before,
+.nav-link.bg-emerald-50::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+
+  width: 3px;
+
+  background-color: var(--jooe-red);
+
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-link.active-nav i,
+.nav-link.bg-emerald-50 i {
+  color: var(--jooe-gold) !important;
+}
+
+
+/* ==========================================================================
+   SIDEBAR OVERLAY
+   ========================================================================== */
+
 .sidebar-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 35;
+
+  inset: 0;
+
+  z-index: 40;
+
+  background-color: rgba(7, 9, 13, 0.8);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .sidebar-overlay.active {
   opacity: 1;
   visibility: visible;
 }
+
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+
+#header {
+  background-color: rgba(10, 16, 26, 0.85) !important;
+
+  border-bottom: 1px solid var(--jooe-border) !important;
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  z-index: 30;
+}
+
+#header-menu-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  color: var(--jooe-text-primary);
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-sm);
+
+  transition: all var(--transition-quick);
+}
+
+#header-menu-btn:hover {
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border-color: var(--jooe-blue);
+
+  transform: translateY(-1px);
+}
+
+#header h1 {
+  color: var(--jooe-text-primary) !important;
+
+  font-weight: 800;
+
+  letter-spacing: -0.03em;
+}
+
+#header p {
+  color: var(--jooe-text-secondary) !important;
+}
+
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+
+#main-content {
+  min-height: 100vh;
+
+  background-color: var(--jooe-dark-base) !important;
+}
+
+#search-filters-section,
+#meal-categories-section,
+#all-recipes-section,
+#meal-details,
+#products-section,
+#foodlog-section,
+#home-section {
+  background-color: transparent !important;
+}
+
+
+/* ==========================================================================
+   SECTION SPACING
+   ========================================================================== */
+
+#home-section {
+  position: relative;
+
+  padding-top: 72px;
+  padding-bottom: 88px;
+
+  overflow: hidden;
+}
+
+#meal-categories-section,
+#all-recipes-section,
+#products-section,
+#foodlog-section {
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+#meal-details {
+  padding-top: 36px;
+  padding-bottom: 72px;
+}
+
+
+/* ==========================================================================
+   SEARCH SECTION
+   ========================================================================== */
+
+#search-filters-section {
+  background-color: var(--jooe-dark-surface) !important;
+
+  border-bottom: 1px solid var(--jooe-border) !important;
+
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#search-input,
+#product-search-input,
+#barcode-input {
+  min-height: 44px;
+
+  color: var(--jooe-text-primary) !important;
+
+  background-color: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-md) !important;
+
+  transition: all var(--transition-quick) !important;
+}
+
+#search-input:hover,
+#product-search-input:hover,
+#barcode-input:hover {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+#search-input:focus,
+#product-search-input:focus,
+#barcode-input:focus {
+  outline: none !important;
+
+  border-color: var(--jooe-blue) !important;
+
+  box-shadow:
+    0 0 0 2px var(--jooe-blue-muted),
+    0 8px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+#search-input::placeholder,
+#product-search-input::placeholder,
+#barcode-input::placeholder {
+  color: var(--jooe-text-muted) !important;
+}
+
+
+/* ==========================================================================
+   AREA FILTERS
+   ========================================================================== */
+
+.area-filter {
+  background-color: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  color: var(--jooe-text-secondary) !important;
+
+  border-radius: var(--radius-pill) !important;
+
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+
+  transition: all var(--transition-quick) !important;
+}
+
+.area-filter:hover {
+  color: #ffffff !important;
+
+  background-color: var(--jooe-dark-card-hover) !important;
+
+  border-color: rgba(255, 255, 255, 0.2) !important;
+
+  transform: translateY(-1px);
+}
+
+.area-filter.active-area,
+.area-filter.bg-emerald-600 {
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border-color: rgba(255, 255, 255, 0.2) !important;
+
+  box-shadow: 0 5px 18px rgba(165, 0, 68, 0.2);
+}
+
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+
+#home-section {
+  position: relative;
+}
+
+.hero-ambient-blue {
+  position: absolute;
+
+  top: -120px;
+  right: -80px;
+
+  width: 500px;
+  height: 500px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 77, 152, 0.12) 0%,
+      transparent 65%
+    );
+
+  pointer-events: none;
+
+  filter: blur(80px);
+
+  z-index: 0;
+}
+
+.hero-tag {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--jooe-gold);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+}
+
+.hero-tag::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  flex-shrink: 0;
+
+  background-color: var(--jooe-red);
+
+  border-radius: 50%;
+
+  box-shadow: 0 0 12px rgba(165, 0, 68, 0.35);
+}
+
+.hero-main-title {
+  color: #ffffff;
+
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+
+  font-weight: 900;
+
+  line-height: 1.04;
+
+  letter-spacing: -0.04em;
+}
+
+
+/* ==========================================================================
+   PORTRAIT
+   ========================================================================== */
+
+.portrait-frame {
+  position: relative;
+
+  overflow: hidden;
+
+  background: var(--jooe-dark-surface);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.015);
+}
+
+.portrait-frame::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 77, 152, 0.08),
+      transparent 40%,
+      rgba(165, 0, 68, 0.06)
+    );
+}
+
+.portrait-frame img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  aspect-ratio: 3 / 4;
+
+  object-fit: cover;
+
+  filter: contrast(1.03);
+
+  transition: transform var(--transition-smooth);
+}
+
+.portrait-frame:hover img {
+  transform: scale(1.02);
+}
+
+.portrait-caption {
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 2;
+
+  padding: 42px 20px 18px;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(7, 9, 13, 0.95) 100%
+    );
+
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn-primary {
+  background: var(--jooe-red) !important;
+  border-color: var(--jooe-red-border) !important;
+}
+
+.btn-primary:hover {
+  background: var(--jooe-red-hover) !important;
+}
+
+.btn-jooe-primary {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 44px;
+
+  padding: 12px 24px;
+
+  color: #ffffff;
+
+  background: var(--jooe-red);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  border-radius: var(--radius-md);
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition: all var(--transition-quick);
+}
+
+.btn-jooe-primary:hover {
+  color: #ffffff;
+
+  background: var(--jooe-blue-hover);
+
+  border-color: rgba(255, 255, 255, 0.3);
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 24px rgba(0, 77, 152, 0.2);
+}
+
+.btn-jooe-primary:active {
+  transform: translateY(0);
+}
+
+.btn-jooe-secondary {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 44px;
+
+  padding: 12px 22px;
+
+  color: var(--jooe-text-primary);
+
+  background: rgba(255, 255, 255, 0.03);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-md);
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition: all var(--transition-quick);
+}
+
+.btn-jooe-secondary:hover {
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border-color: rgba(255, 255, 255, 0.2);
+
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================================================
+   PERSONAL BRAND PILLARS
+   ========================================================================== */
+
+.pillar-card {
+  position: relative;
+
+  padding: 26px;
+
+  background: var(--jooe-dark-card);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-lg);
+
+  cursor: pointer;
+
+  transition: all var(--transition-quick);
+}
+
+.pillar-card:hover {
+  background: var(--jooe-dark-card-hover);
+
+  border-color: var(--jooe-blue-border);
+
+  transform: translateY(-3px);
+
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.2);
+}
+
+.pillar-number {
+  margin-bottom: 10px;
+
+  color: var(--jooe-red);
+
+  font-size: 0.75rem;
+  font-weight: 800;
+
+  letter-spacing: 0.1em;
+}
+
+.pillar-title {
+  margin-bottom: 8px;
+
+  color: #ffffff;
+
+  font-size: 1.15rem;
+  font-weight: 700;
+
+  letter-spacing: -0.02em;
+}
+
+
+/* ==========================================================================
+   RECIPE & PRODUCT CARDS
+   ========================================================================== */
+
+.recipe-card,
+.product-card {
+  overflow: hidden;
+
+  background-color: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-lg) !important;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+
+  transition: all var(--transition-quick) !important;
+}
+
+.recipe-card:hover,
+.product-card:hover {
+  background-color: var(--jooe-dark-card-hover) !important;
+
+  border-color: var(--jooe-blue-border) !important;
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(0, 77, 152, 0.06);
+}
+
+.recipe-card img,
+.product-card img {
+  transition:
+    transform 0.55s var(--ease-editorial),
+    filter 0.55s var(--ease-editorial);
+}
+
+.recipe-card:hover img,
+.product-card:hover img {
+  transform: scale(1.035);
+
+  filter: saturate(1.06) contrast(1.02);
+}
+
+
+/* ==========================================================================
+   CATEGORY CARDS
+   ========================================================================== */
+
+.category-card {
+  background: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-md) !important;
+
+  transition: all var(--transition-quick) !important;
+}
+
+.category-card:hover {
+  background: var(--jooe-dark-card-hover) !important;
+
+  border-color: var(--jooe-blue) !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+
+/* ==========================================================================
+   QUICK PRODUCT LOG
+   ========================================================================== */
+
+.quick-log-product-btn {
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+  border-radius: var(--radius-sm) !important;
+
+  font-size: 0.75rem;
+
+  font-weight: 600;
+
+  transition: all var(--transition-quick);
+}
+
+.quick-log-product-btn:hover {
+  background: var(--jooe-blue-hover) !important;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 16px rgba(0, 77, 152, 0.18);
+}
+
+
+/* ==========================================================================
+   NUTRI SCORE
+   ========================================================================== */
+
+.nutri-score-filter {
+  color: var(--jooe-text-secondary) !important;
+
+  background: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-sm) !important;
+
+  font-weight: 700 !important;
+
+  transition: all var(--transition-quick) !important;
+}
+
+.nutri-score-filter:hover {
+  color: #ffffff !important;
+
+  border-color: rgba(255, 255, 255, 0.25) !important;
+
+  background: var(--jooe-dark-card-hover) !important;
+}
+
+.nutri-score-filter.nutri-score-active {
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border-color: var(--jooe-red) !important;
+
+  box-shadow: 0 6px 18px rgba(165, 0, 68, 0.18);
+}
+
+
+/* ==========================================================================
+   PRODUCT CATEGORIES
+   ========================================================================== */
+
+.product-category-btn {
+  padding: 8px 16px;
+
+  color: var(--jooe-text-secondary) !important;
+
+  background: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-md) !important;
+
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition: all var(--transition-quick) !important;
+}
+
+.product-category-btn:hover {
+  color: #ffffff !important;
+
+  background: var(--jooe-dark-card-hover) !important;
+
+  border-color: rgba(255, 255, 255, 0.25) !important;
+
+  transform: translateY(-1px);
+}
+
+.product-category-btn.product-category-active {
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border-color: rgba(255, 255, 255, 0.2) !important;
+
+  box-shadow: 0 5px 18px rgba(165, 0, 68, 0.18);
+}
+
+
+/* ==========================================================================
+   PAGINATION
+   ========================================================================== */
+
+.pagination-bar {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-top: 28px;
+  padding-top: 20px;
+
+  border-top: 1px solid var(--jooe-border);
+}
+
+.pagination-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 8px 16px;
+
+  color: var(--jooe-text-primary);
+
+  background: var(--jooe-dark-card);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-md);
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all var(--transition-quick);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--jooe-dark-card-hover);
+
+  border-color: var(--jooe-blue);
+
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.pagination-label {
+  color: var(--jooe-text-secondary);
+
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.pagination-label-strong {
+  color: #ffffff;
+
+  font-weight: 800;
+}
+
+
+/* ==========================================================================
+   RECIPE DETAILS
+   ========================================================================== */
+
+#back-to-meals-btn {
+  padding: 8px 16px;
+
+  color: var(--jooe-text-secondary) !important;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  border: 1px solid var(--jooe-border);
+
+  border-radius: var(--radius-md);
+
+  font-weight: 600;
+
+  transition: all var(--transition-quick);
+}
+
+#back-to-meals-btn:hover {
+  color: #ffffff !important;
+
+  background: rgba(255, 255, 255, 0.07);
+
+  border-color: rgba(255, 255, 255, 0.2);
+
+  transform: translateX(-2px);
+}
+
+#log-meal-btn {
+  min-height: 44px;
+
+  padding: 12px 24px;
+
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+
+  border-radius: var(--radius-md);
+
+  font-weight: 700;
+
+  transition: all var(--transition-quick);
+}
+
+#log-meal-btn:hover {
+  background: var(--jooe-red-hover) !important;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 24px rgba(165, 0, 68, 0.2);
+}
+
+
+/* ==========================================================================
+   FOOD LOG
+   ========================================================================== */
+
+#foodlog-today-section,
+#foodlog-section .bg-white {
+  background: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-lg);
+}
+
+#clear-foodlog {
+  color: var(--jooe-red) !important;
+
+  font-weight: 600;
+
+  transition: all var(--transition-quick);
+}
+
+#clear-foodlog:hover {
+  color: var(--jooe-red-hover) !important;
+
+  opacity: 0.9;
+
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================================================
+   LOADING
+   ========================================================================== */
+
+#app-loading-overlay {
+  background-color: var(--jooe-dark-base) !important;
+}
+
+#app-loading-overlay > div {
+  background: transparent !important;
+}
+
+
+/* ==========================================================================
+   SWEET ALERT
+   ========================================================================== */
+
+.swal2-popup {
+  color: var(--jooe-text-primary) !important;
+
+  background: var(--jooe-dark-card) !important;
+
+  border: 1px solid var(--jooe-border) !important;
+
+  border-radius: var(--radius-lg) !important;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.swal2-title {
+  color: var(--jooe-text-primary) !important;
+}
+
+.swal2-html-container {
+  color: var(--jooe-text-secondary) !important;
+}
+
+.swal2-confirm {
+  color: #ffffff !important;
+
+  background: var(--jooe-red) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+  border-radius: var(--radius-md) !important;
+}
+
+.swal2-confirm:hover {
+  background: var(--jooe-red-hover) !important;
+}
+
+.swal2-cancel {
+  color: var(--jooe-text-secondary) !important;
+
+  background: #1c2330 !important;
+
+  border-radius: var(--radius-md) !important;
+}
+
+
+/* ==========================================================================
+   EDITORIAL FOOTER
+   ========================================================================== */
+
+.jooe-footer {
+  margin-top: auto;
+
+  padding: 48px 32px 36px;
+
+  color: var(--jooe-text-secondary);
+
+  background-color: var(--jooe-dark-surface);
+
+  border-top: 1px solid var(--jooe-border);
+}
+
+.jooe-footer a {
+  color: var(--jooe-text-secondary);
+
+  transition: color var(--transition-quick);
+}
+
+.jooe-footer a:hover {
+  color: #ffffff;
+}
+
+
+/* ==========================================================================
+   EMPTY / ERROR STATES
+   ========================================================================== */
+
+#recipes-grid > .col-span-full,
+#products-grid > .col-span-full {
+  min-height: 300px;
+}
+
+#recipes-grid > .col-span-full > div:first-child,
+#products-grid > .col-span-full > div:first-child {
+  transition: all var(--transition-quick);
+}
+
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--jooe-blue);
+
+  outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — TABLET
+   ========================================================================== */
 
 @media (max-width: 1023px) {
   #sidebar {
@@ -24,5 +1263,194 @@
   #sidebar.open,
   #sidebar:not(.-translate-x-full) {
     transform: translateX(0);
+  }
+
+  #main-content {
+    margin-left: 0 !important;
+  }
+
+  #home-section {
+    padding-top: 56px;
+    padding-bottom: 64px;
+  }
+
+  #meal-categories-section,
+  #all-recipes-section,
+  #products-section,
+  #foodlog-section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #sidebar {
+    display: flex !important;
+    transform: translateX(0) !important;
+    visibility: visible !important;
+  }
+
+  #header-menu-btn {
+    display: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — MOBILE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  #header,
+  #search-filters-section,
+  #meal-categories-section,
+  #all-recipes-section,
+  #meal-details,
+  #products-section,
+  #foodlog-section,
+  #home-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  #home-section {
+    padding-top: 42px;
+    padding-bottom: 56px;
+  }
+
+  #meal-categories-section,
+  #all-recipes-section,
+  #products-section,
+  #foodlog-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  #meal-details {
+    padding-top: 28px;
+    padding-bottom: 48px;
+  }
+
+  #categories-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 10px !important;
+  }
+
+  #recipes-grid {
+    grid-template-columns: 1fr !important;
+
+    gap: 16px !important;
+  }
+
+  #products-grid {
+    grid-template-columns: 1fr !important;
+
+    gap: 16px !important;
+  }
+
+  .hero-main-title {
+    font-size: 2.5rem;
+
+    line-height: 1.06;
+  }
+
+  .hero-tag {
+    font-size: 0.68rem;
+  }
+
+  .portrait-frame {
+    max-width: 420px;
+
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pillar-card {
+    padding: 22px;
+  }
+
+  .pagination-bar {
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    text-align: center;
+  }
+
+  .pagination-btn {
+    flex: 1;
+
+    min-width: 120px;
+  }
+
+  .btn-jooe-primary,
+  .btn-jooe-secondary {
+    width: 100%;
+  }
+
+  #log-meal-btn {
+    width: 100%;
+  }
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — SMALL MOBILE
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  #categories-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-main-title {
+    font-size: 2.15rem;
+  }
+
+  .hero-ambient-blue {
+    width: 300px;
+    height: 300px;
+
+    top: -60px;
+    right: -100px;
+
+    filter: blur(60px);
+  }
+
+  .portrait-frame {
+    border-radius: var(--radius-md);
+  }
+
+  .jooe-footer {
+    padding: 36px 20px 28px;
+  }
+
+  .product-category-btn {
+    padding: 7px 13px;
+
+    font-size: 0.75rem !important;
+  }
+}
+
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

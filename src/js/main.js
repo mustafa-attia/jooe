@@ -3,6 +3,17 @@ import * as AppState from "./state/appState.js";
 import * as UI from "./ui/components.js";
 import { navigate, onRouteChange, initRouter } from "./router.js";
 
+const homeSection = document.getElementById("home-section");
+const pageMainTitle = document.getElementById("page-main-title");
+const pageMainSubtitle = document.getElementById("page-main-subtitle");
+const calorieTargetInput = document.getElementById("calorie-target-input");
+const heroCtaMeals = document.getElementById("hero-cta-meals");
+const heroCtaProducts = document.getElementById("hero-cta-products");
+const heroCtaFoodLog = document.getElementById("hero-cta-foodlog");
+const pillarCardMeals = document.getElementById("pillar-card-meals");
+const pillarCardProducts = document.getElementById("pillar-card-products");
+const pillarCardFoodLog = document.getElementById("pillar-card-foodlog");
+
 const searchInput = document.getElementById("search-input");
 const categoriesGrid = document.getElementById("categories-grid");
 const recipesGrid = document.getElementById("recipes-grid");
@@ -40,6 +51,7 @@ const headerMenuButton = document.getElementById("header-menu-btn");
 
 let searchTimeout = null;
 let categoryRequestInProgress = false;
+let mealSearchRequestId = 0;
 
 const showToast = (title, icon = "success") => {
   if (!window.Swal) {
@@ -54,6 +66,8 @@ const showToast = (title, icon = "success") => {
     showConfirmButton: false,
     timer: 2500,
     timerProgressBar: true,
+    background: "#0D1320",
+    color: "#F5F5F5",
   });
 };
 
@@ -67,7 +81,9 @@ const showAlert = (title, text, icon = "error") => {
     text,
     icon,
     confirmButtonText: "OK",
-    confirmButtonColor: "#10b981",
+    confirmButtonColor: "#A50044",
+    background: "#0D1320",
+    color: "#F5F5F5",
   });
 };
 
@@ -83,8 +99,10 @@ const showConfirm = async (title, text) => {
     showCancelButton: true,
     confirmButtonText: "Yes, clear it",
     cancelButtonText: "Cancel",
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#6b7280",
+    confirmButtonColor: "#A50044",
+    cancelButtonColor: "#252B35",
+    background: "#0D1320",
+    color: "#F5F5F5",
   });
 
   return result.isConfirmed;
@@ -98,6 +116,50 @@ const normalizeNumber = (value) => {
   const number = Number(value);
 
   return Number.isFinite(number) ? number : 0;
+};
+
+const normalizeOptionalNumber = (value) =>
+  value === null || value === undefined || value === ""
+    ? null
+    : normalizeNumber(value);
+
+const normalizeNutrition = (nutrition = {}) => {
+  const source = nutrition?.perServing || nutrition;
+  const available = ["calories", "protein", "carbs", "fat"].some(
+    (key) => source[key] !== undefined && source[key] !== null
+  );
+
+  return {
+    available,
+    calories: normalizeNumber(
+      source?.calories ?? source?.energy ?? source?.energyKcal
+    ),
+    protein: normalizeNumber(source?.protein ?? source?.proteins),
+    carbs: normalizeNumber(
+      source?.carbs ?? source?.carbohydrates ?? source?.carbohydratesTotal
+    ),
+    fat: normalizeNumber(source?.fat ?? source?.totalFat),
+    fiber: normalizeNumber(source?.fiber ?? source?.fibers),
+    sugar: normalizeNumber(source?.sugar ?? source?.sugars),
+  };
+};
+
+const hasNutritionValues = (nutrition = {}) =>
+  nutrition.available === true ||
+  (nutrition.available !== false &&
+    ["calories", "protein", "carbs", "fat"].some(
+      (key) => nutrition[key] !== undefined && nutrition[key] !== null
+    ));
+
+const extractNutrition = (data) => {
+  if (data?.success !== true || !data?.data) {
+    return null;
+  }
+
+  return {
+    ...normalizeNutrition(data.data.perServing),
+    totals: normalizeNutrition(data.data.totals),
+  };
 };
 
 const getProductLimit = () => {
@@ -140,7 +202,8 @@ const setProductPagination = (pagination) => {
   }
 
   AppState.state.productPage = Number(pagination?.page) || 1;
-  AppState.state.productLimit = Number(pagination?.limit) || getProductLimit();
+  AppState.state.productLimit =
+    Number(pagination?.limit) || getProductLimit();
   AppState.state.productTotal = Number(pagination?.total) || 0;
   AppState.state.productTotalPages = Number(pagination?.totalPages) || 0;
 };
@@ -174,7 +237,10 @@ const setSelectedNutriScore = (score) => {
 
 const normalizeProduct = (product = {}) => {
   const nutrition =
-    product?.nutrients || product?.nutrition || product?.nutritionalInfo || {};
+    product?.nutrients ||
+    product?.nutrition ||
+    product?.nutritionalInfo ||
+    {};
 
   const name =
     product?.name ||
@@ -205,7 +271,10 @@ const normalizeProduct = (product = {}) => {
     "unknown";
 
   const novaGroup =
-    product?.novaGroup ?? product?.nova_group ?? product?.nova ?? "N/A";
+    product?.novaGroup ??
+    product?.nova_group ??
+    product?.nova ??
+    "N/A";
 
   const calories =
     nutrition?.calories ??
@@ -213,34 +282,33 @@ const normalizeProduct = (product = {}) => {
     nutrition?.energy_kcal ??
     product?.calories ??
     product?.energy_kcal_100g ??
-    product?.energyKcal100g ??
-    0;
+    product?.energyKcal100g;
 
   const protein =
     nutrition?.protein ??
     nutrition?.proteins ??
     product?.protein ??
     product?.proteins_100g ??
-    product?.protein_100g ??
-    0;
+    product?.protein_100g;
 
   const carbs =
     nutrition?.carbs ??
     nutrition?.carbohydrates ??
     product?.carbs ??
     product?.carbohydrates_100g ??
-    product?.carbohydrates ??
-    0;
+    product?.carbohydrates;
 
-  const fat = nutrition?.fat ?? product?.fat ?? product?.fat_100g ?? 0;
+  const fat =
+    nutrition?.fat ??
+    product?.fat ??
+    product?.fat_100g;
 
   const sugar =
     nutrition?.sugar ??
     nutrition?.sugars ??
     product?.sugar ??
     product?.sugars_100g ??
-    product?.sugars ??
-    0;
+    product?.sugars;
 
   const categories =
     product?.categories ??
@@ -257,27 +325,24 @@ const normalizeProduct = (product = {}) => {
     image,
     categories,
     quantity:
-      product?.quantity || product?.servingSize || product?.serving_size || "",
+      product?.quantity ||
+      product?.servingSize ||
+      product?.serving_size ||
+      "",
     nutritionGrade: String(nutritionGrade).toLowerCase(),
     novaGroup,
     nutrients: {
-      calories: normalizeNumber(calories),
-      protein: normalizeNumber(protein),
-      carbs: normalizeNumber(carbs),
-      fat: normalizeNumber(fat),
-      sugar: normalizeNumber(sugar),
+      calories: normalizeOptionalNumber(calories),
+      protein: normalizeOptionalNumber(protein),
+      carbs: normalizeOptionalNumber(carbs),
+      fat: normalizeOptionalNumber(fat),
+      sugar: normalizeOptionalNumber(sugar),
     },
   };
 };
 
 const extractProducts = (data) => {
-  const results = Array.isArray(data?.results)
-    ? data.results
-    : Array.isArray(data?.products)
-    ? data.products
-    : data?.result
-    ? [data.result]
-    : [];
+  const results = Array.isArray(data?.results) ? data.results : [];
 
   return results.map(normalizeProduct);
 };
@@ -298,11 +363,13 @@ const extractPagination = (
     Number(pagination.limit ?? data?.pageSize ?? fallbackLimit) ||
     fallbackLimit;
 
-  const total = Number(pagination.total ?? data?.count ?? fallbackLength) || 0;
+  const total =
+    Number(pagination.total ?? data?.count ?? fallbackLength) || 0;
 
   const totalPages =
     Number(
-      pagination.totalPages ?? (total > 0 ? Math.ceil(total / limit) : 0)
+      pagination.totalPages ??
+        (total > 0 ? Math.ceil(total / limit) : 0)
     ) || 0;
 
   return {
@@ -342,15 +409,15 @@ const showProductMessage = (title, description) => {
 
   productsGrid.innerHTML = `
     <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-      <div class="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
-        <i class="fa-solid fa-magnifying-glass text-emerald-500 text-2xl"></i>
+      <div class="w-20 h-20 rounded-full bg-[#11151C] border border-[#252B35] flex items-center justify-center mb-5">
+        <i class="fa-solid fa-magnifying-glass text-[#EDBB00] text-2xl"></i>
       </div>
 
-      <h3 class="text-lg font-bold text-gray-800">
+      <h3 class="text-lg font-bold text-[#F5F5F5]">
         ${title}
       </h3>
 
-      <p class="text-sm text-gray-500 mt-2 max-w-md">
+      <p class="text-sm text-[#A7ADB8] mt-2 max-w-md">
         ${description}
       </p>
     </div>
@@ -366,10 +433,18 @@ const resetNutriScoreButtons = () => {
     button.classList.remove(
       "bg-emerald-600",
       "text-white",
-      "border-emerald-600"
+      "border-emerald-600",
+      "bg-gray-100",
+      "text-gray-700",
+      "bg-[#004D98]",
+      "border-[#004D98]"
     );
 
-    button.classList.add("bg-gray-100", "text-gray-700");
+    button.classList.add(
+      "bg-[#11151C]",
+      "text-[#A7ADB8]",
+      "border-[#252B35]"
+    );
   });
 };
 
@@ -380,12 +455,16 @@ const updateActiveNutriScore = (activeButton) => {
     return;
   }
 
-  activeButton.classList.remove("bg-gray-100", "text-gray-700");
+  activeButton.classList.remove(
+    "bg-[#11151C]",
+    "text-[#A7ADB8]",
+    "border-[#252B35]"
+  );
 
   activeButton.classList.add(
-    "bg-emerald-600",
+    "bg-[#004D98]",
     "text-white",
-    "border-emerald-600"
+    "border-[#004D98]"
   );
 };
 
@@ -405,7 +484,10 @@ const filterProductsByScore = (products = []) => {
 
 const getProductCategoryText = (product) => {
   const categories =
-    product?.categories || product?.category || product?.categoryName || "";
+    product?.categories ||
+    product?.category ||
+    product?.categoryName ||
+    "";
 
   if (Array.isArray(categories)) {
     return categories.join(" ");
@@ -443,19 +525,52 @@ const applyProductFilters = (products = []) => {
 };
 
 const renderFoodLogPage = () => {
+  const calorieTarget = AppState.state.calorieTarget || 2000;
+
   UI.renderFoodLog(AppState.state.foodLog);
   UI.renderFoodLogCount(AppState.state.foodLog);
-  UI.renderNutritionSummary(AppState.state.foodLog);
+  UI.renderNutritionSummary(AppState.state.foodLog, calorieTarget);
   UI.toggleClearFoodLog(AppState.state.foodLog);
   UI.renderFoodLogDate();
   UI.renderWeeklyOverview(AppState.state.foodLog);
-  UI.renderFoodLogStats(AppState.state.foodLog);
+  UI.renderFoodLogStats(AppState.state.foodLog, calorieTarget);
+};
+
+const syncCalorieTargetUI = () => {
+  const calorieTarget = AppState.state.calorieTarget || 2000;
+
+  if (calorieTargetInput) {
+    calorieTargetInput.value = String(calorieTarget);
+  }
+
+  const foodLogTarget = document.getElementById("foodlog-calorie-target");
+
+  if (foodLogTarget) {
+    foodLogTarget.textContent = `Target: ${calorieTarget.toLocaleString()} kcal`;
+  }
+};
+
+const handleCalorieTargetChange = () => {
+  if (!calorieTargetInput) {
+    return;
+  }
+
+  AppState.setCalorieTarget(calorieTargetInput.value);
+  syncCalorieTargetUI();
+  renderFoodLogPage();
 };
 
 const updateActiveNav = (activeLink) => {
   navLinks.forEach((link) => {
-    link.classList.remove("bg-emerald-50", "text-emerald-700");
-    link.classList.add("text-gray-600");
+    link.classList.remove(
+      "active-nav",
+      "bg-emerald-50",
+      "text-emerald-700",
+      "bg-[#004D98]",
+      "text-white"
+    );
+
+    link.classList.add("text-[#A7ADB8]");
 
     const span = link.querySelector("span");
 
@@ -469,8 +584,8 @@ const updateActiveNav = (activeLink) => {
     return;
   }
 
-  activeLink.classList.remove("text-gray-600");
-  activeLink.classList.add("bg-emerald-50", "text-emerald-700");
+  activeLink.classList.remove("text-[#A7ADB8]");
+  activeLink.classList.add("active-nav");
 
   const span = activeLink.querySelector("span");
 
@@ -482,6 +597,7 @@ const updateActiveNav = (activeLink) => {
 
 const hideAllPages = () => {
   [
+    homeSection,
     searchFiltersSection,
     mealCategoriesSection,
     allRecipesSection,
@@ -528,6 +644,10 @@ const toggleSidebar = () => {
 const showPage = (page) => {
   hideAllPages();
 
+  if (page === "home" && homeSection) {
+    homeSection.style.display = "";
+  }
+
   if (page === "meals") {
     if (searchFiltersSection) {
       searchFiltersSection.style.display = "";
@@ -554,9 +674,37 @@ const showPage = (page) => {
   AppState.setCurrentPage(page);
 };
 
+const showHomePage = () => {
+  showPage("home");
+  updateActiveNav(navLinks[0]);
+
+  if (pageMainTitle) {
+    pageMainTitle.textContent = "Jooe";
+  }
+
+  if (pageMainSubtitle) {
+    pageMainSubtitle.textContent =
+      "Your personal nutrition and culinary intelligence hub";
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
+
 const showMealsPage = () => {
   showPage("meals");
-  updateActiveNav(navLinks[0]);
+  updateActiveNav(navLinks[1]);
+
+  if (pageMainTitle) {
+    pageMainTitle.textContent = "Culinary Archive";
+  }
+
+  if (pageMainSubtitle) {
+    pageMainSubtitle.textContent =
+      "Discover recipes, ingredients and nutrition insights";
+  }
 
   window.scrollTo({
     top: 0,
@@ -566,7 +714,16 @@ const showMealsPage = () => {
 
 const showProductsPage = () => {
   showPage("products");
-  updateActiveNav(navLinks[1]);
+  updateActiveNav(navLinks[2]);
+
+  if (pageMainTitle) {
+    pageMainTitle.textContent = "Food Intelligence & Barcodes";
+  }
+
+  if (pageMainSubtitle) {
+    pageMainSubtitle.textContent =
+      "Scan, search and understand packaged food";
+  }
 
   window.scrollTo({
     top: 0,
@@ -576,7 +733,16 @@ const showProductsPage = () => {
 
 const showFoodLogPage = () => {
   showPage("foodlog");
-  updateActiveNav(navLinks[2]);
+  updateActiveNav(navLinks[3]);
+
+  if (pageMainTitle) {
+    pageMainTitle.textContent = "Performance Protocol";
+  }
+
+  if (pageMainSubtitle) {
+    pageMainSubtitle.textContent =
+      "Track meals, macros and daily nutrition consistency";
+  }
 
   window.scrollTo({
     top: 0,
@@ -594,9 +760,32 @@ const showMealDetailsPage = () => {
   AppState.setCurrentPage("details");
 
   navLinks.forEach((link) => {
-    link.classList.remove("bg-emerald-50", "text-emerald-700");
-    link.classList.add("text-gray-600");
+    link.classList.remove(
+      "active-nav",
+      "bg-emerald-50",
+      "text-emerald-700",
+      "bg-[#004D98]",
+      "text-white"
+    );
+
+    link.classList.add("text-[#A7ADB8]");
+
+    const span = link.querySelector("span");
+
+    if (span) {
+      span.classList.remove("font-semibold");
+      span.classList.add("font-medium");
+    }
   });
+
+  if (pageMainTitle) {
+    pageMainTitle.textContent = "Culinary Blueprint";
+  }
+
+  if (pageMainSubtitle) {
+    pageMainSubtitle.textContent =
+      "Ingredients, preparation and detailed nutrition profile";
+  }
 
   window.scrollTo({
     top: 0,
@@ -615,19 +804,26 @@ const handleNavigation = (event) => {
 
   const index = Array.from(navLinks).indexOf(link);
 
-  closeSidebar();
+  if (window.innerWidth < 1024) {
+    closeSidebar();
+  }
 
   if (index === 0) {
-    navigate("/meals");
+    navigate("/home");
     return;
   }
 
   if (index === 1) {
-    navigate("/products");
+    navigate("/meals");
     return;
   }
 
   if (index === 2) {
+    navigate("/products");
+    return;
+  }
+
+  if (index === 3) {
     navigate("/foodlog");
   }
 };
@@ -652,7 +848,7 @@ const loadProductCategories = async () => {
   try {
     const data = await API.getProductCategories(1, 50);
 
-    const categories = Array.isArray(data?.results) ? data.results : [];
+    const categories = data.results;
 
     AppState.setProductCategories(categories);
 
@@ -720,16 +916,16 @@ const handleProductSearch = async (page = 1) => {
     setSelectedNutriScore("");
     resetNutriScoreButtons();
 
-    const data = await API.searchProducts(query, page, getProductLimit());
+    const data = await API.searchProducts(query);
 
     const products = extractProducts(data);
 
-    const pagination = extractPagination(
-      data,
-      page,
-      getProductLimit(),
-      products.length
-    );
+    const pagination = {
+      page: 1,
+      limit: products.length,
+      total: Number(data?.count) || products.length,
+      totalPages: 1,
+    };
 
     setProductPagination(pagination);
 
@@ -766,7 +962,10 @@ const handleProductSearch = async (page = 1) => {
     AppState.setProducts([]);
     clearProductsUI();
 
-    showProductMessage("Search failed", "Please try searching again.");
+    showProductMessage(
+      "Search failed",
+      "Please try searching again."
+    );
 
     showAlert(
       "Product search failed",
@@ -777,86 +976,80 @@ const handleProductSearch = async (page = 1) => {
   }
 };
 
-const handleProductCategory = (category) => {
+const handleProductCategory = async (category, page = 1) => {
   if (!category) {
     return;
   }
 
-  const query = productSearchInput?.value.trim() || getProductSearchQuery();
+  try {
+    UI.showLoading();
 
-  if (!query) {
-    setSelectedProductCategory("");
-    AppState.setProducts([]);
+    setSelectedProductCategory(category);
+    setSelectedNutriScore("");
+    resetNutriScoreButtons();
+
+    const data = await API.getProductsByCategory(
+      category,
+      page,
+      getProductLimit()
+    );
+
+    const products = extractProducts(data);
+
+    const pagination = extractPagination(
+      data,
+      page,
+      getProductLimit(),
+      products.length
+    );
+
+    setProductPagination(pagination);
+
+    if (!products.length) {
+      setProductPool([]);
+      AppState.setProducts([]);
+      clearProductsUI();
+
+      showProductMessage(
+        "No products found",
+        `No products found in category "${category}".`
+      );
+
+      showToast("No products found", "info");
+
+      return;
+    }
+
+    const normalizedProducts = products.map(normalizeProduct);
+
+    setProductPool(normalizedProducts);
+    AppState.setProducts(normalizedProducts);
+
+    UI.renderProducts(normalizedProducts);
+    UI.renderProductCount(normalizedProducts);
+
+    if (typeof UI.renderProductPagination === "function") {
+      UI.renderProductPagination(pagination);
+    }
+
+    showToast(`${category} products loaded successfully`);
+  } catch (error) {
     setProductPool([]);
-    clearProductsUI();
-
-    showProductMessage(
-      "Search for a product first",
-      "You need to search for a product before using categories."
-    );
-
-    showToast("Search for a product first", "warning");
-
-    return;
-  }
-
-  const productPool = getProductPool();
-
-  if (!productPool.length) {
     AppState.setProducts([]);
     clearProductsUI();
 
     showProductMessage(
-      "No search results",
-      `No products were found for "${query}".`
+      "Failed to load category",
+      "Please try selecting another category."
     );
 
-    showToast("No search results", "info");
-
-    return;
-  }
-
-  setSelectedProductCategory(category);
-
-  const categoryProducts = productPool.filter((product) =>
-    productMatchesCategory(product, category)
-  );
-
-  const filtered = filterProductsByScore(categoryProducts);
-
-  AppState.setProducts(filtered);
-
-  setProductPagination({
-    page: 1,
-    limit: filtered.length || 1,
-    total: filtered.length,
-    totalPages: filtered.length ? 1 : 0,
-  });
-
-  if (!filtered.length) {
-    clearProductsUI();
-
-    showProductMessage(
-      `No ${category} products found`,
-      `No products from your "${query}" search belong to this category.`
+    showAlert(
+      "Failed to load category",
+      error.message || "Please try again later."
     );
-
-    showToast("No matching products found", "info");
-
-    return;
+  } finally {
+    UI.hideLoading();
   }
-
-  UI.renderProducts(filtered);
-  UI.renderProductCount(filtered);
-
-  if (typeof UI.renderProductPagination === "function") {
-    UI.renderProductPagination({
-      page: 1,
-      totalPages: 1,
-    });
-  }
-
-  showToast(`${category} products loaded`);
 };
 
 const handleBarcodeLookup = async () => {
@@ -868,7 +1061,6 @@ const handleBarcodeLookup = async () => {
 
   if (!barcode) {
     showToast("Please enter a barcode", "warning");
-
     return;
   }
 
@@ -877,7 +1069,12 @@ const handleBarcodeLookup = async () => {
 
     const data = await API.getProductByBarcode(barcode);
 
-    const product = data?.result || data?.product || data?.data || null;
+    const product =
+      data?.result ||
+      data?.product ||
+        data?.data?.product ||
+      data?.data ||
+        (data?.id ? data : null);
 
     if (!product) {
       setProductPool([]);
@@ -1020,8 +1217,11 @@ const handleProductPagination = async (event) => {
     return;
   }
 
-  const currentPage = Number(AppState.state?.productPage) || 1;
-  const totalPages = Number(AppState.state?.productTotalPages) || 0;
+  const currentPage =
+    Number(AppState.state?.productPage) || 1;
+
+  const totalPages =
+    Number(AppState.state?.productTotalPages) || 0;
 
   let nextPage = currentPage;
 
@@ -1038,12 +1238,13 @@ const handleProductPagination = async (event) => {
   }
 
   const query = getProductSearchQuery();
+  const category = getSelectedProductCategory();
 
-  if (!query) {
-    return;
+  if (query) {
+    await handleProductSearch(nextPage);
+  } else if (category) {
+    await handleProductCategory(category, nextPage);
   }
-
-  await handleProductSearch(nextPage);
 };
 
 const handleQuickLogProduct = (event) => {
@@ -1060,7 +1261,8 @@ const handleQuickLogProduct = (event) => {
   }
 
   const product = getProductPool().find(
-    (item) => String(item?.barcode || "") === String(barcode)
+    (item) =>
+      String(item?.barcode || "") === String(barcode)
   );
 
   if (!product) {
@@ -1070,11 +1272,23 @@ const handleQuickLogProduct = (event) => {
 
   const nutrients = product.nutrients || {};
 
+  if (
+    !["calories", "protein", "carbs", "fat"].every(
+      (key) => Number.isFinite(Number(nutrients[key]))
+    )
+  ) {
+    showToast("Nutrition data is unavailable for this product", "warning");
+    return;
+  }
+
   const logItem = {
     id: `product_${barcode}_${Date.now()}`,
     name: product.name || "Unknown Product",
     image: product.image || "",
     type: "product",
+    sourceId: barcode || product.name || "product",
+    brand: product.brand || "",
+    barcode,
     calories: normalizeNumber(nutrients.calories),
     protein: normalizeNumber(nutrients.protein),
     carbs: normalizeNumber(nutrients.carbs),
@@ -1083,7 +1297,10 @@ const handleQuickLogProduct = (event) => {
 
   AppState.addToFoodLog(logItem);
   renderFoodLogPage();
-  showToast(`${logItem.name} has been added to your food log`);
+
+  showToast(
+    `${logItem.name} has been added to your food log`
+  );
 };
 
 const handleSearch = () => {
@@ -1096,6 +1313,7 @@ const handleSearch = () => {
   AppState.setSearchQuery(query);
 
   clearTimeout(searchTimeout);
+  const requestId = ++mealSearchRequestId;
 
   searchTimeout = setTimeout(async () => {
     try {
@@ -1103,7 +1321,11 @@ const handleSearch = () => {
 
       const data = await API.searchMeals(query || "chicken");
 
-      const meals = Array.isArray(data?.results) ? data.results : [];
+      if (requestId !== mealSearchRequestId) {
+        return;
+      }
+
+      const meals = data.results;
 
       AppState.setMeals(meals);
       AppState.setSelectedCategory("");
@@ -1124,8 +1346,15 @@ const handleSearch = () => {
 
       UI.renderMealCount(meals);
     } catch (error) {
-      UI.renderErrorState("Search failed", "Please try again later.");
-      showAlert("Search failed", error.message || "Please try again later.");
+      UI.renderErrorState(
+        "Search failed",
+        "Please try again later."
+      );
+
+      showAlert(
+        "Search failed",
+        error.message || "Please try again later."
+      );
     } finally {
       UI.hideLoading();
     }
@@ -1133,7 +1362,8 @@ const handleSearch = () => {
 };
 
 const handleCategoryFilter = async (event) => {
-  const categoryCard = event.target.closest(".category-card");
+  const categoryCard =
+    event.target.closest(".category-card");
 
   if (!categoryCard) {
     return;
@@ -1159,7 +1389,7 @@ const handleCategoryFilter = async (event) => {
       category,
     });
 
-    const meals = Array.isArray(data?.results) ? data.results : [];
+    const meals = data.results;
 
     AppState.setMeals(meals);
 
@@ -1216,14 +1446,16 @@ const handleAreaFilter = async (event) => {
         })
       : await API.searchMeals("chicken");
 
-    const meals = Array.isArray(data?.results) ? data.results : [];
+    const meals = data.results;
 
     AppState.setMeals(meals);
 
     if (!meals.length) {
       UI.showEmptyState(
         "No recipes found",
-        area ? `No recipes found in ${area}.` : "No recipes found."
+        area
+          ? `No recipes found in ${area}.`
+          : "No recipes found."
       );
     } else {
       UI.renderMeals(meals);
@@ -1231,7 +1463,10 @@ const handleAreaFilter = async (event) => {
 
     UI.renderMealCount(meals);
   } catch (error) {
-    UI.renderErrorState("Failed to filter recipes", "Please try again later.");
+    UI.renderErrorState(
+      "Failed to filter recipes",
+      "Please try again later."
+    );
 
     showAlert(
       "Failed to filter recipes",
@@ -1253,7 +1488,7 @@ const loadMealDetails = async (mealId) => {
 
     const data = await API.getMealById(mealId);
 
-    const meal = data?.result || data?.results?.[0] || data?.meal || null;
+    const meal = data?.result || null;
 
     if (!meal) {
       UI.renderErrorState(
@@ -1261,55 +1496,100 @@ const loadMealDetails = async (mealId) => {
         "This recipe is no longer available."
       );
 
-      showAlert("Recipe not found", "This recipe is no longer available.");
+      showAlert(
+        "Recipe not found",
+        "This recipe is no longer available."
+      );
+
       return;
     }
 
     AppState.setSelectedMeal(meal);
-    AppState.setSelectedMealNutrition({});
+
+    const existingNutrition = normalizeNutrition(
+      meal?.nutrition ||
+        meal?.nutrients ||
+        meal?.nutritionFacts ||
+        {}
+    );
+    const hasExistingNutrition = hasNutritionValues(
+      meal?.nutrition || meal?.nutrients || meal?.nutritionFacts || {}
+    );
+
+    AppState.setSelectedMealNutrition(existingNutrition);
 
     showMealDetailsPage();
 
     UI.renderMealDetails(meal);
 
     UI.renderIngredients(
-      Array.isArray(meal.ingredients) ? meal.ingredients : []
+      Array.isArray(meal.ingredients)
+        ? meal.ingredients
+        : []
     );
 
     UI.renderInstructions(meal.instructions || "");
 
-    UI.renderVideo(meal.youtube || meal.youtubeUrl || meal.video || "");
+    UI.renderVideo(
+      meal.youtube ||
+        meal.youtubeUrl ||
+        meal.video ||
+        ""
+    );
 
-    UI.renderNutrition({});
+    UI.renderNutrition(existingNutrition);
 
-    if (Array.isArray(meal.ingredients) && meal.ingredients.length) {
+    if (
+      Array.isArray(meal.ingredients) &&
+      meal.ingredients.length
+    ) {
       try {
-        const ingredients = meal.ingredients
+        const ingredientStrings = meal.ingredients
           .map(
             (ingredient) =>
               `${ingredient?.measure || ""} ${
-                ingredient?.ingredient || ingredient?.name || ""
+                ingredient?.ingredient ||
+                ingredient?.name ||
+                ""
               }`.trim()
           )
           .filter(Boolean);
 
-        const nutritionData = await API.analyzeNutrition({
-          recipeName: meal.name || "Recipe",
-          ingredients,
-        });
+        const nutritionData =
+          await API.analyzeNutrition({
+            recipeName: meal.name || "Recipe",
+            ingredients: ingredientStrings,
+          });
 
-        const nutrition = nutritionData?.data?.perServing;
+        const apiNutrition =
+          extractNutrition(nutritionData);
 
-        if (nutrition) {
-          AppState.setSelectedMealNutrition(nutrition);
-          UI.renderNutrition(nutrition);
+        if (apiNutrition) {
+          AppState.setSelectedMealNutrition(apiNutrition);
+          UI.renderNutrition(apiNutrition);
         }
-      } catch {
-        UI.renderNutrition({});
+      } catch (nutritionError) {
+        showAlert(
+          "Nutrition analysis unavailable",
+          nutritionError.message || "Nutrition data could not be analyzed."
+        );
+
+        if (
+          hasExistingNutrition
+        ) {
+          AppState.setSelectedMealNutrition(
+            existingNutrition
+          );
+
+          UI.renderNutrition(existingNutrition);
+        }
       }
     }
   } catch (error) {
-    UI.renderErrorState("Failed to load recipe", "Please try again later.");
+    UI.renderErrorState(
+      "Failed to load recipe",
+      "Please try again later."
+    );
 
     showAlert(
       "Failed to load recipe",
@@ -1333,11 +1613,14 @@ const handleMealClick = (event) => {
     return;
   }
 
-  navigate(`/meals/${encodeURIComponent(mealId)}`);
+  navigate(
+    `/meals/${encodeURIComponent(mealId)}`
+  );
 };
 
 const handleBackToMeals = (event) => {
-  const button = event.target.closest("#back-to-meals-btn");
+  const button =
+    event.target.closest("#back-to-meals-btn");
 
   if (!button) {
     return;
@@ -1347,7 +1630,8 @@ const handleBackToMeals = (event) => {
 };
 
 const handleLogMeal = (event) => {
-  const button = event.target.closest("#log-meal-btn");
+  const button =
+    event.target.closest("#log-meal-btn");
 
   if (!button) {
     return;
@@ -1360,25 +1644,46 @@ const handleLogMeal = (event) => {
     return;
   }
 
-  const nutrition = AppState.state.selectedMealNutrition || {};
+  const nutrition =
+    AppState.state.selectedMealNutrition || {};
+
+  if (!hasNutritionValues(nutrition)) {
+    showToast("Nutrition data is unavailable for this meal", "warning");
+    return;
+  }
 
   AppState.addToFoodLog({
     id: `meal_${meal.id}_${Date.now()}`,
     name: meal.name || "Unknown Meal",
-    thumbnail: meal.thumbnail || meal.image || "",
+    thumbnail:
+      meal.thumbnail ||
+      meal.image ||
+      "",
     type: "meal",
-    calories: normalizeNumber(nutrition.calories),
-    protein: normalizeNumber(nutrition.protein),
-    carbs: normalizeNumber(nutrition.carbs),
-    fat: normalizeNumber(nutrition.fat),
+    calories: normalizeNumber(
+      nutrition.calories
+    ),
+    protein: normalizeNumber(
+      nutrition.protein
+    ),
+    carbs: normalizeNumber(
+      nutrition.carbs
+    ),
+    fat: normalizeNumber(
+      nutrition.fat
+    ),
   });
 
   renderFoodLogPage();
-  showToast(`${meal.name} has been added to your food log`);
+
+  showToast(
+    `${meal.name} has been added to your food log`
+  );
 };
 
 const handleRemoveFoodLog = (event) => {
-  const button = event.target.closest(".remove-foodlog-btn");
+  const button =
+    event.target.closest(".remove-foodlog-btn");
 
   if (!button) {
     return;
@@ -1392,30 +1697,54 @@ const handleRemoveFoodLog = (event) => {
 
   AppState.removeFromFoodLog(id);
   renderFoodLogPage();
+
   showToast("Item removed from food log");
 };
 
 const handleClearFoodLog = async () => {
-  if (!AppState.state.foodLog.length) {
-    showToast("Your food log is already empty", "info");
+  const today = typeof AppState.getToday === "function"
+    ? AppState.getToday()
+    : new Date().toISOString().slice(0, 10);
+  const todayItems = AppState.state.foodLog.filter(
+    (item) => item?.date === today
+  );
+
+  if (!todayItems.length) {
+    showToast(
+      "Your food log is already empty",
+      "info"
+    );
+
     return;
   }
 
   const confirmed = await showConfirm(
-    "Clear food log?",
-    "This will permanently remove all logged meals and products."
+    "Clear today's food log?",
+    "This will permanently remove today's logged meals and products."
   );
 
   if (!confirmed) {
     return;
   }
 
-  AppState.clearFoodLog();
+  if (typeof AppState.clearTodayFoodLog === "function") {
+    AppState.clearTodayFoodLog();
+  } else {
+    AppState.setFoodLog(
+      AppState.state.foodLog.filter((item) => item?.date !== today)
+    );
+  }
   renderFoodLogPage();
+
   showToast("Food log cleared successfully");
 };
 
 const handleRouteChange = (route, mealId) => {
+  if (route === "home") {
+    showHomePage();
+    return;
+  }
+
   if (route === "meals") {
     showMealsPage();
     return;
@@ -1437,7 +1766,7 @@ const handleRouteChange = (route, mealId) => {
     return;
   }
 
-  navigate("/meals", {
+  navigate("/home", {
     replace: true,
   });
 };
@@ -1454,19 +1783,21 @@ const initApp = async () => {
   try {
     UI.showLoading();
 
-    const [mealsData, categoriesData, areasData] = await Promise.all([
+    const [
+      mealsData,
+      categoriesData,
+      areasData,
+    ] = await Promise.all([
       API.searchMeals("chicken"),
       API.getCategories(),
       API.getAreas(),
     ]);
 
-    const meals = Array.isArray(mealsData?.results) ? mealsData.results : [];
+    const meals = mealsData.results;
 
-    const categories = Array.isArray(categoriesData?.results)
-      ? categoriesData.results
-      : [];
+    const categories = categoriesData.results;
 
-    const areas = Array.isArray(areasData?.results) ? areasData.results : [];
+    const areas = areasData.results;
 
     AppState.setMeals(meals);
     AppState.setCategories(categories);
@@ -1493,61 +1824,200 @@ const initApp = async () => {
 
     showAlert(
       "Failed to load data",
-      error.message || "Please check your internet connection and try again."
+      error.message ||
+        "Please check your internet connection and try again."
     );
   } finally {
     UI.hideLoading();
   }
 };
 
-document.addEventListener("click", handleNavigation);
-document.addEventListener("click", handleFoodLogPageClick);
+document.addEventListener(
+  "click",
+  handleNavigation
+);
 
-recipesGrid?.addEventListener("click", handleMealClick);
-categoriesGrid?.addEventListener("click", handleCategoryFilter);
-areasContainer?.addEventListener("click", handleAreaFilter);
-searchInput?.addEventListener("input", handleSearch);
+document.addEventListener(
+  "click",
+  handleFoodLogPageClick
+);
 
-document.addEventListener("click", handleBackToMeals);
-document.addEventListener("click", handleLogMeal);
-document.addEventListener("click", handleRemoveFoodLog);
-document.addEventListener("click", handleQuickLogProduct);
+recipesGrid?.addEventListener(
+  "click",
+  handleMealClick
+);
 
-clearFoodLogButton?.addEventListener("click", handleClearFoodLog);
-searchProductButton?.addEventListener("click", () => handleProductSearch());
+categoriesGrid?.addEventListener(
+  "click",
+  handleCategoryFilter
+);
 
-productSearchInput?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    handleProductSearch();
+areasContainer?.addEventListener(
+  "click",
+  handleAreaFilter
+);
+
+searchInput?.addEventListener(
+  "input",
+  handleSearch
+);
+
+document.addEventListener(
+  "click",
+  handleBackToMeals
+);
+
+document.addEventListener(
+  "click",
+  handleLogMeal
+);
+
+document.addEventListener(
+  "click",
+  handleRemoveFoodLog
+);
+
+document.addEventListener(
+  "click",
+  handleQuickLogProduct
+);
+
+heroCtaMeals?.addEventListener(
+  "click",
+  () => navigate("/meals")
+);
+
+heroCtaProducts?.addEventListener(
+  "click",
+  () => navigate("/products")
+);
+
+heroCtaFoodLog?.addEventListener(
+  "click",
+  () => navigate("/foodlog")
+);
+
+pillarCardMeals?.addEventListener(
+  "click",
+  () => navigate("/meals")
+);
+
+pillarCardProducts?.addEventListener(
+  "click",
+  () => navigate("/products")
+);
+
+pillarCardFoodLog?.addEventListener(
+  "click",
+  () => navigate("/foodlog")
+);
+
+clearFoodLogButton?.addEventListener(
+  "click",
+  handleClearFoodLog
+);
+
+calorieTargetInput?.addEventListener(
+  "change",
+  handleCalorieTargetChange
+);
+
+searchProductButton?.addEventListener(
+  "click",
+  () => handleProductSearch()
+);
+
+productSearchInput?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      handleProductSearch();
+    }
+  }
+);
+
+lookupBarcodeButton?.addEventListener(
+  "click",
+  handleBarcodeLookup
+);
+
+barcodeInput?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "Enter") {
+      handleBarcodeLookup();
+    }
+  }
+);
+
+productCategories?.addEventListener(
+  "click",
+  (event) => {
+    const button =
+      event.target.closest(
+        ".product-category-btn"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    handleProductCategory(
+      button.dataset.category
+    );
+  }
+);
+
+productsPagination?.addEventListener(
+  "click",
+  handleProductPagination
+);
+
+document.addEventListener(
+  "click",
+  handleNutriScoreFilter
+);
+
+sidebarCloseButton?.addEventListener(
+  "click",
+  closeSidebar
+);
+
+sidebarOverlay?.addEventListener(
+  "click",
+  closeSidebar
+);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeSidebar();
   }
 });
 
-lookupBarcodeButton?.addEventListener("click", handleBarcodeLookup);
-
-barcodeInput?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    handleBarcodeLookup();
-  }
-});
-
-productCategories?.addEventListener("click", (event) => {
-  const button = event.target.closest(".product-category-btn");
-
-  if (!button) {
+const syncSidebarForViewport = () => {
+  if (!sidebar || !sidebarOverlay) {
     return;
   }
 
-  handleProductCategory(button.dataset.category);
-});
+  if (window.innerWidth >= 1024) {
+    sidebar.classList.remove("-translate-x-full");
+    sidebarOverlay.classList.remove("active");
+    return;
+  }
 
-productsPagination?.addEventListener("click", handleProductPagination);
-document.addEventListener("click", handleNutriScoreFilter);
+  closeSidebar();
+};
 
-sidebarCloseButton?.addEventListener("click", closeSidebar);
-sidebarOverlay?.addEventListener("click", closeSidebar);
-headerMenuButton?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleSidebar();
-});
+window.addEventListener("resize", syncSidebarForViewport);
+syncSidebarForViewport();
+syncCalorieTargetUI();
+
+headerMenuButton?.addEventListener(
+  "click",
+  (event) => {
+    event.stopPropagation();
+    toggleSidebar();
+  }
+);
 
 initApp();

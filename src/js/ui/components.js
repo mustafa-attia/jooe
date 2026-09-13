@@ -10,6 +10,7 @@ const loggedItemsCount = document.querySelector("#foodlog-today-section h4");
 const clearFoodLogButton = document.getElementById("clear-foodlog");
 const foodLogDate = document.getElementById("foodlog-date");
 const mealDetails = document.getElementById("meal-details");
+
 const areasContainer = document.querySelector(
   "#search-filters-section .flex.items-center.gap-3"
 );
@@ -21,6 +22,57 @@ const escapeHtml = (value) => {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+};
+
+const colors = {
+  blue: "#004D98",
+  blueDark: "#003B73",
+  red: "#A50044",
+  redDark: "#7D0035",
+  gold: "#EDBB00",
+  background: "#07090D",
+  surface: "#0D121A",
+  surfaceLight: "#111923",
+  border: "#202936",
+  borderLight: "#2A3442",
+  text: "#FFFFFF",
+  muted: "#A7ADB8",
+  mutedDark: "#6F7885",
+};
+
+const emptyState = ({
+  icon = "fa-magnifying-glass",
+  title = "Nothing found",
+  description = "Try changing your search or filters.",
+  accent = "blue",
+} = {}) => {
+  const accentColor = accent === "red" ? colors.red : colors.blue;
+
+  return `
+    <div class="col-span-full flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div
+        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+        style="
+          background: rgba(0, 77, 152, 0.10);
+          border: 1px solid rgba(0, 77, 152, 0.25);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+        "
+      >
+        <i
+          class="fa-solid ${icon} text-xl"
+          style="color: ${accentColor};"
+        ></i>
+      </div>
+
+      <p class="text-white text-lg font-bold tracking-tight">
+        ${escapeHtml(title)}
+      </p>
+
+      <p class="text-[#7F8997] text-sm mt-2 max-w-md leading-relaxed">
+        ${escapeHtml(description)}
+      </p>
+    </div>
+  `;
 };
 
 export const renderMeals = (meals = []) => {
@@ -37,52 +89,111 @@ export const renderMeals = (meals = []) => {
       const name = meal?.name || "Unknown Recipe";
       const category = meal?.category || "Unknown";
       const area = meal?.area || "Unknown";
+
       const image =
         meal?.thumbnail ||
         meal?.image ||
-        "https://via.placeholder.com/400x300?text=No+Image";
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&h=600&q=85";
 
       return `
         <div
-          class="recipe-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+          class="recipe-card group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
           data-meal-id="${escapeHtml(id)}"
+          style="
+            background: ${colors.surface};
+            border: 1px solid ${colors.border};
+          "
         >
-          <div class="relative h-48 overflow-hidden">
+          <div class="relative h-52 overflow-hidden bg-[#090D13]">
             <img
-              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               src="${escapeHtml(image)}"
               alt="${escapeHtml(name)}"
               loading="lazy"
             />
 
-            <div class="absolute bottom-3 left-3 flex gap-2">
-              <span class="px-2 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold rounded-full text-gray-700">
+            <div
+              class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style="
+                background: linear-gradient(
+                  to top,
+                  rgba(7, 9, 13, 0.7),
+                  transparent 60%
+                );
+              "
+            ></div>
+
+            <div class="absolute top-3 left-3">
+              <span
+                class="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                style="
+                  background: rgba(7, 9, 13, 0.88);
+                  color: ${colors.gold};
+                  border: 1px solid rgba(237, 187, 0, 0.25);
+                  backdrop-filter: blur(10px);
+                "
+              >
                 ${escapeHtml(category)}
               </span>
+            </div>
 
-              <span class="px-2 py-1 bg-emerald-500 text-xs font-semibold rounded-full text-white">
+            <div class="absolute top-3 right-3">
+              <span
+                class="inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                style="
+                  background: rgba(0, 77, 152, 0.9);
+                  color: white;
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  backdrop-filter: blur(10px);
+                "
+              >
                 ${escapeHtml(area)}
               </span>
             </div>
           </div>
 
-          <div class="p-4">
-            <h3 class="text-base font-bold text-gray-900 mb-1 group-hover:text-emerald-600 transition-colors line-clamp-1">
+          <div class="p-5">
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <p
+                class="text-[10px] font-bold uppercase tracking-[0.16em]"
+                style="color: ${colors.gold};"
+              >
+                Jooe Culinary
+              </p>
+
+              <i
+                class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
+                style="color: ${colors.muted};"
+              ></i>
+            </div>
+
+            <h3
+              class="text-[17px] font-bold text-white mb-2 line-clamp-1 tracking-tight"
+            >
               ${escapeHtml(name)}
             </h3>
 
-            <p class="text-xs text-gray-600 mb-3 line-clamp-2">
-              Delicious recipe to try!
+            <p class="text-xs text-[#7F8997] mb-5 line-clamp-2 leading-relaxed">
+              Curated recipe with ingredients, preparation guide and nutrition information.
             </p>
 
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-semibold text-gray-900">
-                <i class="fa-solid fa-utensils text-emerald-600 mr-1"></i>
+            <div
+              class="flex items-center justify-between pt-3.5"
+              style="border-top: 1px solid ${colors.border};"
+            >
+              <span class="text-xs font-medium text-[#B8C0CB]">
+                <i
+                  class="fa-solid fa-utensils mr-1.5"
+                  style="color: ${colors.red};"
+                ></i>
                 ${escapeHtml(category)}
               </span>
 
-              <span class="font-semibold text-gray-500">
-                <i class="fa-solid fa-globe text-blue-500 mr-1"></i>
+              <span class="text-xs font-medium text-[#B8C0CB]">
+                <i
+                  class="fa-solid fa-earth-americas mr-1.5"
+                  style="color: ${colors.blue};"
+                ></i>
                 ${escapeHtml(area)}
               </span>
             </div>
@@ -107,18 +218,37 @@ export const renderCategories = (categories = []) => {
 
       return `
         <div
-          class="category-card bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-3 border border-emerald-200 hover:border-emerald-400 hover:shadow-md cursor-pointer transition-all group"
+          class="category-card group rounded-xl p-4 cursor-pointer transition-all duration-300"
           data-category="${escapeHtml(name)}"
+          style="
+            background: ${colors.surface};
+            border: 1px solid ${colors.border};
+          "
         >
-          <div class="flex items-center gap-2.5">
-            <div class="text-white w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-              <i class="fa-solid fa-drumstick-bite"></i>
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105"
+              style="
+                background: rgba(0, 77, 152, 0.12);
+                border: 1px solid rgba(0, 77, 152, 0.3);
+              "
+            >
+              <i
+                class="fa-solid fa-drumstick-bite text-xs"
+                style="color: ${colors.gold};"
+              ></i>
             </div>
 
-            <div>
-              <h3 class="text-sm font-bold text-gray-900">
+            <div class="min-w-0">
+              <h3
+                class="text-sm font-bold text-white group-hover:text-[#EDBB00] transition-colors truncate"
+              >
                 ${escapeHtml(name)}
               </h3>
+
+              <p class="text-[10px] text-[#687280] uppercase tracking-wider mt-0.5">
+                Recipe category
+              </p>
             </div>
           </div>
         </div>
@@ -143,7 +273,7 @@ export const renderAreas = (areas = []) => {
   let box = `
     <button
       type="button"
-      class="area-filter active-area px-4 py-2 bg-emerald-600 text-white rounded-full font-medium text-sm whitespace-nowrap transition-all"
+      class="area-filter active-area px-4 py-2 rounded-lg font-semibold text-xs whitespace-nowrap transition-all cursor-pointer"
       data-area=""
     >
       All Recipes
@@ -162,7 +292,7 @@ export const renderAreas = (areas = []) => {
       box += `
         <button
           type="button"
-          class="area-filter px-4 py-2 bg-gray-100 text-gray-700 rounded-full font-medium text-sm whitespace-nowrap hover:bg-gray-200 transition-all"
+          class="area-filter px-4 py-2 rounded-lg font-semibold text-xs whitespace-nowrap transition-all cursor-pointer"
           data-area="${escapeHtml(value)}"
         >
           ${escapeHtml(value)}
@@ -182,14 +312,10 @@ export const setActiveArea = (activeArea) => {
   buttons.forEach((button) => {
     const area = button.dataset.area || "";
 
-    button.classList.remove("bg-emerald-600", "text-white", "active-area");
-
-    button.classList.add("bg-gray-100", "text-gray-700");
+    button.classList.remove("active-area");
 
     if (area === activeArea) {
-      button.classList.remove("bg-gray-100", "text-gray-700");
-
-      button.classList.add("bg-emerald-600", "text-white", "active-area");
+      button.classList.add("active-area");
     }
   });
 };
@@ -208,48 +334,30 @@ export const hideLoading = () => {
 
 export const showEmptyState = (
   message = "No recipes found",
-  description = "Try searching for something else"
+  description = "Try searching for a different ingredient or cuisine"
 ) => {
   if (!recipesGrid) return;
 
-  recipesGrid.innerHTML = `
-    <div class="col-span-full flex flex-col items-center justify-center py-12 text-center">
-      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-        <i class="fa-solid fa-search text-gray-400 text-2xl"></i>
-      </div>
-
-      <p class="text-gray-500 text-lg">
-        ${escapeHtml(message)}
-      </p>
-
-      <p class="text-gray-400 text-sm mt-2">
-        ${escapeHtml(description)}
-      </p>
-    </div>
-  `;
+  recipesGrid.innerHTML = emptyState({
+    icon: "fa-magnifying-glass",
+    title: message,
+    description,
+    accent: "blue",
+  });
 };
 
 export const renderErrorState = (
   message = "Something went wrong",
-  description = "Please try again later"
+  description = "Please check your network and try again"
 ) => {
   if (!recipesGrid) return;
 
-  recipesGrid.innerHTML = `
-    <div class="col-span-full flex flex-col items-center justify-center py-12 text-center">
-      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-        <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl"></i>
-      </div>
-
-      <p class="text-gray-600 text-lg font-medium">
-        ${escapeHtml(message)}
-      </p>
-
-      <p class="text-gray-400 text-sm mt-2">
-        ${escapeHtml(description)}
-      </p>
-    </div>
-  `;
+  recipesGrid.innerHTML = emptyState({
+    icon: "fa-circle-exclamation",
+    title: message,
+    description,
+    accent: "red",
+  });
 };
 
 const getProductNutrition = (product) => {
@@ -261,7 +369,7 @@ const getProductNutrition = (product) => {
     product?.calories ??
     product?.energy_kcal_100g ??
     product?.energyKcal100g ??
-    0;
+    null;
 
   const protein =
     nutrients?.protein ??
@@ -269,7 +377,7 @@ const getProductNutrition = (product) => {
     product?.protein ??
     product?.proteins_100g ??
     product?.protein_100g ??
-    0;
+    null;
 
   const carbs =
     nutrients?.carbs ??
@@ -277,9 +385,9 @@ const getProductNutrition = (product) => {
     product?.carbs ??
     product?.carbohydrates_100g ??
     product?.carbohydrates ??
-    0;
+    null;
 
-  const fat = nutrients?.fat ?? product?.fat ?? product?.fat_100g ?? 0;
+  const fat = nutrients?.fat ?? product?.fat ?? product?.fat_100g ?? null;
 
   const sugar =
     nutrients?.sugar ??
@@ -287,7 +395,7 @@ const getProductNutrition = (product) => {
     product?.sugar ??
     product?.sugars_100g ??
     product?.sugars ??
-    0;
+    null;
 
   return {
     calories,
@@ -296,6 +404,12 @@ const getProductNutrition = (product) => {
     fat,
     sugar,
   };
+};
+
+const formatProductNutrition = (value, unit = "") => {
+  const number = Number(value);
+
+  return Number.isFinite(number) ? `${number.toFixed(1)}${unit}` : "N/A";
 };
 
 const getNutriScore = (product) => {
@@ -316,112 +430,138 @@ export const renderProducts = (products = []) => {
   if (!productsGrid) return;
 
   if (!Array.isArray(products) || products.length === 0) {
-    productsGrid.innerHTML = `
-      <div class="col-span-full flex flex-col items-center justify-center py-12 text-center">
-        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <i class="fa-solid fa-box-open text-gray-400 text-2xl"></i>
-        </div>
-
-        <p class="text-gray-500 text-lg">
-          No products found
-        </p>
-
-        <p class="text-gray-400 text-sm mt-2">
-          Search for a product or choose a category
-        </p>
-      </div>
-    `;
+    productsGrid.innerHTML = emptyState({
+      icon: "fa-box-open",
+      title: "No products found",
+      description:
+        "Search by brand, food name, or enter a valid barcode to continue.",
+      accent: "blue",
+    });
 
     return;
   }
 
+  const getGradeColor = (grade) => {
+    const g = String(grade || "").toLowerCase();
+
+    if (g === "a") return "#1F9D72";
+    if (g === "b") return "#5C9E35";
+    if (g === "c") return colors.gold;
+    if (g === "d") return "#C86B36";
+    if (g === "e") return colors.red;
+
+    return colors.blue;
+  };
+
   productsGrid.innerHTML = products
     .map((product) => {
       const name = product?.name || "Unknown Product";
-
-      const brand = product?.brand || product?.brands || "Unknown Brand";
+      const brand =
+        product?.brand || product?.brands || "Verified Grocery Item";
 
       const image =
         product?.image || product?.image_url || product?.thumbnail || "";
 
-      const quantity = product?.quantity || "N/A";
-
+      const quantity = product?.quantity || "Packaged";
       const barcode = product?.barcode || product?.code || "";
 
       const nutrition = getProductNutrition(product);
-
       const nutriScore = getNutriScore(product);
-
       const novaGroup = getNovaGroup(product);
+      const scoreColor = getGradeColor(nutriScore);
 
       return `
         <div
-          class="product-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all group"
+          class="product-card group rounded-2xl overflow-hidden transition-all duration-300"
           data-barcode="${escapeHtml(barcode)}"
+          style="
+            background: ${colors.surface};
+            border: 1px solid ${colors.border};
+          "
         >
-          <div class="relative h-44 bg-gray-50 flex items-center justify-center overflow-hidden">
+          <div
+            class="relative h-48 bg-[#090D13] flex items-center justify-center overflow-hidden"
+          >
             ${
               image
                 ? `
                   <img
-                    class="w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                     src="${escapeHtml(image)}"
                     alt="${escapeHtml(name)}"
-                    style="height: 200px"
                     loading="lazy"
                   />
                 `
                 : `
-                  <div class="text-gray-300 text-5xl">
+                  <div class="text-[#303947] text-5xl">
                     <i class="fa-solid fa-box-open"></i>
                   </div>
                 `
             }
 
-            <div class="absolute top-2 left-2">
-              <span class="inline-flex px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold uppercase">
+            <div class="absolute top-3 left-3">
+              <span
+                class="inline-flex px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-white"
+                style="
+                  background: ${scoreColor};
+                  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+                "
+              >
                 Nutri-Score ${escapeHtml(nutriScore)}
               </span>
             </div>
 
-            <div class="absolute top-2 right-2">
-              <span class="w-8 h-8 rounded-full bg-lime-500 text-white text-xs font-bold flex items-center justify-center">
-                ${escapeHtml(novaGroup)}
+            <div class="absolute top-3 right-3">
+              <span
+                class="w-9 h-9 rounded-full text-white text-[9px] font-bold flex items-center justify-center"
+                style="
+                  background: rgba(7, 9, 13, 0.9);
+                  border: 1px solid rgba(255,255,255,0.12);
+                  backdrop-filter: blur(10px);
+                "
+                title="Nova Ultra-processing Group"
+              >
+                N${escapeHtml(novaGroup)}
               </span>
             </div>
           </div>
 
-          <div class="p-4">
-            <p class="text-xs text-emerald-600 font-semibold mb-1 truncate">
+          <div class="p-5">
+            <p
+              class="text-[10px] font-bold uppercase tracking-[0.14em] mb-1.5 truncate"
+              style="color: ${colors.gold};"
+            >
               ${escapeHtml(brand)}
             </p>
 
-            <h3 class="font-bold text-gray-900 mb-2 line-clamp-2">
+            <h3 class="font-bold text-white text-sm mb-2 line-clamp-2 leading-snug">
               ${escapeHtml(name)}
             </h3>
 
-            <div class="flex items-center gap-3 text-xs text-gray-500 mb-4">
+            <div class="flex items-center gap-3 text-[11px] text-[#7F8997] mb-4">
               <span>
-                <i class="fa-solid fa-weight-scale mr-1"></i>
+                <i class="fa-solid fa-weight-scale mr-1.5"></i>
                 ${escapeHtml(quantity)}
               </span>
 
-              <span>
-                <i class="fa-solid fa-barcode mr-1"></i>
+              <span class="truncate">
+                <i class="fa-solid fa-barcode mr-1.5"></i>
                 ${escapeHtml(barcode || "N/A")}
               </span>
             </div>
 
-            <div class="flex items-center justify-between mb-4">
+            <div
+              class="flex items-center justify-between mb-4 pt-3 border-t"
+              style="border-color: ${colors.border};"
+            >
               <div>
-                <p class="text-xs text-gray-500">
+                <p class="text-[10px] text-[#6F7885] uppercase tracking-wider">
                   Calories
                 </p>
 
-                <p class="font-bold text-gray-900">
-                  ${escapeHtml(Number(nutrition.calories).toFixed(1))}
-
-                  <span class="text-xs font-normal text-gray-500">
+                <p class="font-black text-white text-sm mt-0.5">
+                  ${escapeHtml(formatProductNutrition(nutrition.calories))}
+                  <span class="text-[9px] font-normal text-[#6F7885]">
                     kcal/100g
                   </span>
                 </p>
@@ -429,53 +569,79 @@ export const renderProducts = (products = []) => {
 
               <button
                 type="button"
-                class="quick-log-product-btn px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all"
+                class="quick-log-product-btn px-3.5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                 data-barcode="${escapeHtml(barcode)}"
+                style="
+                  background: rgba(0, 77, 152, 0.12);
+                  color: ${colors.gold};
+                  border: 1px solid rgba(0, 77, 152, 0.3);
+                "
               >
                 <i class="fa-solid fa-plus mr-1"></i>
-                Log
+                Log Item
               </button>
             </div>
 
-            <div class="grid grid-cols-4 gap-1">
-              <div class="bg-emerald-50 rounded-lg p-2 text-center">
-                <p class="text-xs font-bold text-emerald-700">
-                  ${escapeHtml(Number(nutrition.protein).toFixed(1))}g
+            <div class="grid grid-cols-4 gap-1.5">
+              <div
+                class="rounded-lg p-2 text-center"
+                style="
+                  background: rgba(0, 77, 152, 0.08);
+                  border: 1px solid rgba(0, 77, 152, 0.2);
+                "
+              >
+                <p class="text-[11px] font-black" style="color: #70B4FF;">
+                  ${escapeHtml(formatProductNutrition(nutrition.protein, "g"))}
                 </p>
-
-                <p class="text-[10px] text-gray-500">
-                  Protein
-                </p>
+                <p class="text-[9px] text-[#6F7885] mt-0.5">Protein</p>
               </div>
 
-              <div class="bg-blue-50 rounded-lg p-2 text-center">
-                <p class="text-xs font-bold text-blue-700">
-                  ${escapeHtml(Number(nutrition.carbs).toFixed(1))}g
+              <div
+                class="rounded-lg p-2 text-center"
+                style="
+                  background: rgba(237, 187, 0, 0.07);
+                  border: 1px solid rgba(237, 187, 0, 0.18);
+                "
+              >
+                <p
+                  class="text-[11px] font-black"
+                  style="color: ${colors.gold};"
+                >
+                  ${escapeHtml(formatProductNutrition(nutrition.carbs, "g"))}
                 </p>
-
-                <p class="text-[10px] text-gray-500">
-                  Carbs
-                </p>
+                <p class="text-[9px] text-[#6F7885] mt-0.5">Carbs</p>
               </div>
 
-              <div class="bg-purple-50 rounded-lg p-2 text-center">
-                <p class="text-xs font-bold text-purple-700">
-                  ${escapeHtml(Number(nutrition.fat).toFixed(1))}g
+              <div
+                class="rounded-lg p-2 text-center"
+                style="
+                  background: rgba(165, 0, 68, 0.08);
+                  border: 1px solid rgba(165, 0, 68, 0.2);
+                "
+              >
+                <p
+                  class="text-[11px] font-black"
+                  style="color: #FF709B;"
+                >
+                  ${escapeHtml(formatProductNutrition(nutrition.fat, "g"))}
                 </p>
-
-                <p class="text-[10px] text-gray-500">
-                  Fat
-                </p>
+                <p class="text-[9px] text-[#6F7885] mt-0.5">Fat</p>
               </div>
 
-              <div class="bg-orange-50 rounded-lg p-2 text-center">
-                <p class="text-xs font-bold text-orange-700">
-                  ${escapeHtml(Number(nutrition.sugar).toFixed(1))}g
+              <div
+                class="rounded-lg p-2 text-center"
+                style="
+                  background: rgba(255,255,255,0.025);
+                  border: 1px solid ${colors.border};
+                "
+              >
+                <p
+                  class="text-[11px] font-black"
+                  style="color: ${colors.muted};"
+                >
+                  ${escapeHtml(formatProductNutrition(nutrition.sugar, "g"))}
                 </p>
-
-                <p class="text-[10px] text-gray-500">
-                  Sugar
-                </p>
+                <p class="text-[9px] text-[#6F7885] mt-0.5">Sugar</p>
               </div>
             </div>
           </div>
@@ -506,106 +672,232 @@ export const renderProductCategories = (categories = []) => {
   productCategories.innerHTML = categories
     .map((category) => {
       const name = category?.name || category?.category || "Unknown";
-
       const id = category?.id || category?.slug || name;
+      const productCount = Number.isFinite(Number(category?.products))
+        ? String(Number(category.products))
+        : "N/A";
 
       return `
-          <button
-            type="button"
-            class="product-category-btn px-4 py-2 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg text-sm font-medium whitespace-nowrap hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-all"
-            data-category="${escapeHtml(id)}"
-          >
-            ${escapeHtml(name)}
-          </button>
-        `;
+        <button
+          type="button"
+          class="product-category-btn"
+          data-category="${escapeHtml(id)}"
+        >
+          ${escapeHtml(name)}
+          <span class="ml-1 text-[10px] text-[#A7ADB8]">(${escapeHtml(productCount)})</span>
+        </button>
+      `;
     })
     .join("");
+};
+
+export const setActiveProductCategory = (activeCategory) => {
+  if (!productCategories) return;
+
+  const buttons = productCategories.querySelectorAll(
+    ".product-category-btn"
+  );
+
+  buttons.forEach((button) => {
+    const id = button.dataset.category || "";
+    const isActive = Boolean(activeCategory) && id === activeCategory;
+
+    button.classList.toggle("product-category-active", isActive);
+  });
+};
+
+export const renderProductPagination = ({
+  page = 1,
+  totalPages = 0,
+} = {}) => {
+  const container = document.getElementById("products-pagination");
+
+  if (!container) return;
+
+  if (!totalPages || totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const currentPage = Number(page) || 1;
+  const isFirstPage = currentPage <= 1;
+  const isLastPage = currentPage >= totalPages;
+
+  container.innerHTML = `
+    <div
+      class="pagination-bar"
+      style="
+        background: ${colors.surface};
+        border: 1px solid ${colors.border};
+        border-radius: 14px;
+        padding: 8px;
+      "
+    >
+      <button
+        id="products-prev-page"
+        type="button"
+        class="pagination-btn"
+        ${isFirstPage ? "disabled" : ""}
+      >
+        <i class="fa-solid fa-chevron-left text-[9px]"></i>
+        <span>Previous</span>
+      </button>
+
+      <span class="pagination-label">
+        Page
+        <span class="pagination-label-strong">${currentPage}</span>
+        of
+        <span class="pagination-label-strong">${totalPages}</span>
+      </span>
+
+      <button
+        id="products-next-page"
+        type="button"
+        class="pagination-btn"
+        ${isLastPage ? "disabled" : ""}
+      >
+        <span>Next</span>
+        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+      </button>
+    </div>
+  `;
+};
+
+export const showProductSearchMessage = (title, description) => {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = emptyState({
+    icon: "fa-magnifying-glass",
+    title,
+    description,
+    accent: "blue",
+  });
+
+  if (productsCount) {
+    productsCount.textContent = "Search for products to see results";
+  }
+
+  const container = document.getElementById("products-pagination");
+
+  if (container) {
+    container.innerHTML = "";
+  }
 };
 
 export const renderMealDetails = (meal) => {
   if (!mealDetails || !meal) return;
 
   const name = meal?.name || "Unknown Recipe";
-
-  const category = meal?.category || "Unknown";
-
-  const area = meal?.area || "Unknown";
+  const category = meal?.category || "Culinary";
+  const area = meal?.area || "International";
 
   const image =
     meal?.thumbnail ||
     meal?.image ||
-    "https://via.placeholder.com/1200x600?text=Recipe";
+    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&h=700&q=85";
 
   mealDetails.innerHTML = `
     <div class="max-w-7xl mx-auto">
-
       <button
         type="button"
         id="back-to-meals-btn"
-        class="flex items-center gap-2 text-gray-600 hover:text-emerald-600 font-medium mb-6 transition-colors"
+        class="flex items-center gap-2.5 mb-7 font-semibold text-xs uppercase tracking-wider text-[#A7ADB8] hover:text-white transition-colors cursor-pointer"
       >
-        <i class="fa-solid fa-arrow-left"></i>
+        <i
+          class="fa-solid fa-arrow-left text-[10px]"
+          style="color: ${colors.gold};"
+        ></i>
         <span>Back to Recipes</span>
       </button>
 
-      <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
-        <div class="relative h-80 md:h-96">
-
+      <div
+        class="rounded-3xl overflow-hidden mb-9"
+        style="
+          background: ${colors.surface};
+          border: 1px solid ${colors.border};
+          box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+        "
+      >
+        <div class="relative h-[360px] sm:h-[430px]">
           <img
             src="${escapeHtml(image)}"
             alt="${escapeHtml(name)}"
             class="w-full h-full object-cover"
           />
 
-          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+          <div
+            class="absolute inset-0"
+            style="
+              background:
+                linear-gradient(
+                  to top,
+                  rgba(7, 9, 13, 0.98) 0%,
+                  rgba(7, 9, 13, 0.55) 48%,
+                  rgba(7, 9, 13, 0.05) 100%
+                );
+            "
+          ></div>
 
-          <div class="absolute bottom-0 left-0 right-0 p-8">
-
-            <div class="flex items-center gap-3 mb-3">
-
-              <span class="px-3 py-1 bg-emerald-500 text-white text-sm font-semibold rounded-full">
+          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-9">
+            <div class="flex flex-wrap items-center gap-2.5 mb-4">
+              <span
+                class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                style="
+                  background: rgba(237, 187, 0, 0.12);
+                  color: ${colors.gold};
+                  border: 1px solid rgba(237, 187, 0, 0.3);
+                "
+              >
                 ${escapeHtml(category)}
               </span>
 
-              <span class="px-3 py-1 bg-blue-500 text-white text-sm font-semibold rounded-full">
+              <span
+                class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg text-white"
+                style="
+                  background: rgba(0, 77, 152, 0.85);
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                "
+              >
                 ${escapeHtml(area)}
               </span>
-
             </div>
 
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+            <p
+              class="text-[10px] font-bold uppercase tracking-[0.2em] mb-2"
+              style="color: ${colors.muted};"
+            >
+              Jooe Culinary Archive
+            </p>
+
+            <h1
+              class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight max-w-4xl"
+            >
               ${escapeHtml(name)}
             </h1>
-
           </div>
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-3 mb-8">
-
+      <div class="flex flex-wrap gap-3 mb-9">
         <button
           type="button"
           id="log-meal-btn"
-          class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all"
+          class="btn-jooe-primary cursor-pointer"
         >
           <i class="fa-solid fa-clipboard-list"></i>
           <span>Log This Meal</span>
         </button>
-
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        <div class="lg:col-span-2 space-y-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 lg:gap-9">
+        <div class="lg:col-span-2 space-y-7">
           <div id="ingredients-container"></div>
           <div id="instructions-container"></div>
           <div id="video-container"></div>
         </div>
 
         <div id="nutrition-container"></div>
-
       </div>
-
     </div>
   `;
 };
@@ -626,48 +918,71 @@ export const renderIngredients = (ingredients = []) => {
       ? valid
           .map(
             (ingredient) => `
-              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
+              <div
+                class="flex items-center gap-3 p-3.5 rounded-xl transition-all"
+                style="
+                  background: rgba(255,255,255,0.018);
+                  border: 1px solid ${colors.border};
+                "
+              >
                 <input
                   type="checkbox"
-                  class="ingredient-checkbox w-5 h-5 text-emerald-600 rounded border-gray-300"
+                  class="ingredient-checkbox w-4 h-4 rounded cursor-pointer accent-[#004D98]"
                 />
 
-                <span class="text-gray-700">
-                  <span class="font-medium text-gray-900">
+                <span class="text-[#B8C0CB] text-sm leading-relaxed">
+                  <span
+                    class="font-bold mr-1"
+                    style="color: ${colors.gold};"
+                  >
                     ${escapeHtml(ingredient.measure || "")}
                   </span>
-
-                  ${escapeHtml(ingredient.ingredient || ingredient.name || "")}
+                  ${escapeHtml(
+                    ingredient.ingredient || ingredient.name || ""
+                  )}
                 </span>
               </div>
             `
           )
           .join("")
       : `
-          <p class="text-gray-500 text-center py-4">
-            No ingredients available.
+          <p class="text-[#7F8997] text-center py-7 text-sm">
+            No ingredients available for this recipe.
           </p>
         `;
 
   container.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div
+      class="p-6 sm:p-7 rounded-2xl"
+      style="
+        background: ${colors.surface};
+        border: 1px solid ${colors.border};
+      "
+    >
+      <div class="flex items-center gap-2.5 mb-5">
+        <i
+          class="fa-solid fa-list-check text-sm"
+          style="color: ${colors.gold};"
+        ></i>
 
-      <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 class="text-xl font-black text-white">
+          Recipe Ingredients
+        </h2>
 
-        <i class="fa-solid fa-list-check text-emerald-600"></i>
-
-        Ingredients
-
-        <span class="text-sm font-normal text-gray-500 ml-auto">
+        <span
+          class="text-[10px] font-bold text-[#7F8997] ml-auto px-2.5 py-1 rounded-lg uppercase tracking-wider"
+          style="
+            background: rgba(255,255,255,0.03);
+            border: 1px solid ${colors.border};
+          "
+        >
           ${valid.length} items
         </span>
-
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        ${html}
       </div>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        ${html}
+      </div>
     </div>
   `;
 };
@@ -692,9 +1007,15 @@ export const renderInstructions = (instructions = []) => {
 
   if (!steps.length) {
     container.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-lg p-6">
-        <p class="text-gray-500 text-center">
-          No instructions available.
+      <div
+        class="p-6 rounded-2xl"
+        style="
+          background: ${colors.surface};
+          border: 1px solid ${colors.border};
+        "
+      >
+        <p class="text-[#7F8997] text-center text-sm">
+          No preparation instructions available.
         </p>
       </div>
     `;
@@ -703,35 +1024,53 @@ export const renderInstructions = (instructions = []) => {
   }
 
   container.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div
+      class="p-6 sm:p-7 rounded-2xl"
+      style="
+        background: ${colors.surface};
+        border: 1px solid ${colors.border};
+      "
+    >
+      <div class="flex items-center gap-2.5 mb-6">
+        <i
+          class="fa-solid fa-kitchen-set text-sm"
+          style="color: ${colors.red};"
+        ></i>
 
-      <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-shoe-prints text-emerald-600"></i>
-        Instructions
-      </h2>
+        <h2 class="text-xl font-black text-white">
+          Preparation Guide
+        </h2>
+      </div>
 
-      <div class="space-y-4">
-
+      <div class="space-y-3">
         ${steps
           .map(
             (step, index) => `
-              <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
-
-                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+              <div
+                class="flex gap-4 p-4 rounded-xl transition-all"
+                style="
+                  background: rgba(255,255,255,0.015);
+                  border: 1px solid ${colors.border};
+                "
+              >
+                <div
+                  class="w-8 h-8 rounded-lg font-black text-[11px] flex items-center justify-center text-white shrink-0"
+                  style="
+                    background: ${colors.blue};
+                    border: 1px solid rgba(255,255,255,0.08);
+                  "
+                >
                   ${index + 1}
                 </div>
 
-                <p class="text-gray-700 leading-relaxed pt-2">
+                <p class="text-[#B8C0CB] text-sm leading-relaxed pt-1">
                   ${escapeHtml(step)}
                 </p>
-
               </div>
             `
           )
           .join("")}
-
       </div>
-
     </div>
   `;
 };
@@ -743,9 +1082,15 @@ export const renderVideo = (youtubeUrl) => {
 
   if (!youtubeUrl || typeof youtubeUrl !== "string") {
     container.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-lg p-6">
-        <p class="text-gray-500 text-center">
-          No video available.
+      <div
+        class="p-6 rounded-2xl"
+        style="
+          background: ${colors.surface};
+          border: 1px solid ${colors.border};
+        "
+      >
+        <p class="text-[#7F8997] text-center text-sm">
+          No video tutorial available.
         </p>
       </div>
     `;
@@ -773,9 +1118,15 @@ export const renderVideo = (youtubeUrl) => {
 
   if (!videoId) {
     container.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-lg p-6">
-        <p class="text-gray-500 text-center">
-          Invalid video URL.
+      <div
+        class="p-6 rounded-2xl"
+        style="
+          background: ${colors.surface};
+          border: 1px solid ${colors.border};
+        "
+      >
+        <p class="text-[#7F8997] text-center text-sm">
+          Invalid video URL format.
         </p>
       </div>
     `;
@@ -784,15 +1135,28 @@ export const renderVideo = (youtubeUrl) => {
   }
 
   container.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div
+      class="p-6 sm:p-7 rounded-2xl"
+      style="
+        background: ${colors.surface};
+        border: 1px solid ${colors.border};
+      "
+    >
+      <div class="flex items-center gap-2.5 mb-5">
+        <i
+          class="fa-solid fa-video text-sm"
+          style="color: ${colors.red};"
+        ></i>
 
-      <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-video text-red-500"></i>
-        Video Tutorial
-      </h2>
+        <h2 class="text-xl font-black text-white">
+          Video Tutorial
+        </h2>
+      </div>
 
-      <div class="relative aspect-video rounded-xl overflow-hidden bg-gray-100">
-
+      <div
+        class="relative aspect-video rounded-2xl overflow-hidden bg-[#090D13]"
+        style="border: 1px solid ${colors.border};"
+      >
         <iframe
           src="https://www.youtube.com/embed/${escapeHtml(videoId)}"
           class="absolute inset-0 w-full h-full"
@@ -801,9 +1165,7 @@ export const renderVideo = (youtubeUrl) => {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen
         ></iframe>
-
       </div>
-
     </div>
   `;
 };
@@ -812,6 +1174,17 @@ export const renderNutrition = (nutrition = {}) => {
   const container = document.getElementById("nutrition-container");
 
   if (!container) return;
+
+  if (nutrition.available === false) {
+    container.innerHTML = `
+      <div class="p-6 rounded-2xl" style="background: ${colors.surface}; border: 1px solid ${colors.border};">
+        <p class="text-[#A7ADB8] text-center text-sm">
+          Nutrition data is unavailable for this recipe.
+        </p>
+      </div>
+    `;
+    return;
+  }
 
   const calories = Number(nutrition.calories) || 0;
   const protein = Number(nutrition.protein) || 0;
@@ -826,145 +1199,132 @@ export const renderNutrition = (nutrition = {}) => {
   const fiberPercent = Math.min((fiber / 25) * 100, 100);
   const sugarPercent = Math.min((sugar / 50) * 100, 100);
 
+  const nutritionBar = (label, value, goal, percentage, color) => {
+    return `
+      <div>
+        <div class="flex items-center justify-between mb-2 text-xs">
+          <span class="font-semibold text-[#B8C0CB]">${label}</span>
+
+          <span class="font-bold" style="color: ${color};">
+            ${value}g
+            <span class="text-[#596270] font-normal">
+              / ${goal}g
+            </span>
+          </span>
+        </div>
+
+        <div class="w-full bg-[#1A212B] rounded-full h-1.5 overflow-hidden">
+          <div
+            class="h-1.5 rounded-full transition-all duration-500"
+            style="
+              width: ${percentage}%;
+              background: ${color};
+            "
+          ></div>
+        </div>
+      </div>
+    `;
+  };
+
   container.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+    <div
+      class="p-6 sm:p-7 rounded-2xl lg:sticky lg:top-24"
+      style="
+        background: ${colors.surface};
+        border: 1px solid ${colors.border};
+        box-shadow: 0 20px 55px rgba(0,0,0,0.2);
+      "
+    >
+      <div class="flex items-center gap-2.5 mb-2">
+        <i
+          class="fa-solid fa-chart-pie text-sm"
+          style="color: ${colors.gold};"
+        ></i>
 
-      <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <i class="fa-solid fa-chart-pie text-emerald-600"></i>
-        Nutrition Facts
-      </h2>
+        <h2 class="text-xl font-black text-white">
+          Nutrition Facts
+        </h2>
+      </div>
 
-      <p class="text-sm text-gray-500 mb-4">
-        Per serving
+      <p class="text-xs text-[#6F7885] mb-6 leading-relaxed">
+        Calculated estimate per standard serving
       </p>
 
-      <div class="text-center py-4 mb-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl">
-
-        <p class="text-sm text-gray-600">
-          Calories per serving
+      <div
+        class="text-center py-6 mb-7 rounded-xl"
+        style="
+          background:
+            linear-gradient(
+              135deg,
+              rgba(0,77,152,0.12),
+              rgba(165,0,68,0.08)
+            );
+          border: 1px solid rgba(0,77,152,0.2);
+        "
+      >
+        <p class="text-[10px] font-bold text-[#7F8997] uppercase tracking-[0.16em]">
+          Calories Per Serving
         </p>
 
-        <p class="text-4xl font-bold text-emerald-600">
+        <p
+          class="text-4xl font-black mt-1"
+          style="color: ${colors.gold};"
+        >
           ${calories}
+          <span class="text-sm font-medium text-[#6F7885]">
+            kcal
+          </span>
         </p>
-
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-5">
+        ${nutritionBar(
+          "Protein",
+          protein,
+          50,
+          proteinPercent,
+          "#70B4FF"
+        )}
 
-        <div>
+        ${nutritionBar(
+          "Carbohydrates",
+          carbs,
+          250,
+          carbsPercent,
+          colors.gold
+        )}
 
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-700">
-              Protein
-            </span>
+        ${nutritionBar(
+          "Total Fat",
+          fat,
+          65,
+          fatPercent,
+          "#FF709B"
+        )}
 
-            <span class="font-bold text-gray-900">
-              ${protein}g
-            </span>
-          </div>
+        ${nutritionBar(
+          "Dietary Fiber",
+          fiber,
+          25,
+          fiberPercent,
+          "#8FA3B8"
+        )}
 
-          <div class="w-full bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-emerald-500 h-2 rounded-full"
-              style="width:${proteinPercent}%"
-            ></div>
-          </div>
-
-        </div>
-
-        <div>
-
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-700">
-              Carbs
-            </span>
-
-            <span class="font-bold text-gray-900">
-              ${carbs}g
-            </span>
-          </div>
-
-          <div class="w-full bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-blue-500 h-2 rounded-full"
-              style="width:${carbsPercent}%"
-            ></div>
-          </div>
-
-        </div>
-
-        <div>
-
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-700">
-              Fat
-            </span>
-
-            <span class="font-bold text-gray-900">
-              ${fat}g
-            </span>
-          </div>
-
-          <div class="w-full bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-purple-500 h-2 rounded-full"
-              style="width:${fatPercent}%"
-            ></div>
-          </div>
-
-        </div>
-
-        <div>
-
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-700">
-              Fiber
-            </span>
-
-            <span class="font-bold text-gray-900">
-              ${fiber}g
-            </span>
-          </div>
-
-          <div class="w-full bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-orange-500 h-2 rounded-full"
-              style="width:${fiberPercent}%"
-            ></div>
-          </div>
-
-        </div>
-
-        <div>
-
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-700">
-              Sugar
-            </span>
-
-            <span class="font-bold text-gray-900">
-              ${sugar}g
-            </span>
-          </div>
-
-          <div class="w-full bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-pink-500 h-2 rounded-full"
-              style="width:${sugarPercent}%"
-            ></div>
-          </div>
-
-        </div>
-
+        ${nutritionBar(
+          "Sugars",
+          sugar,
+          50,
+          sugarPercent,
+          "#C0C6CF"
+        )}
       </div>
-
     </div>
   `;
 };
 
 const normalizeFoodLogNumber = (value) => {
   const number = Number(value);
+
   return Number.isFinite(number) ? number : 0;
 };
 
@@ -1046,41 +1406,66 @@ export const renderFoodLog = (foodLog = []) => {
 
   if (items.length === 0) {
     loggedItemsList.innerHTML = `
-      <div class="text-center py-12">
-
-        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fa-solid fa-utensils text-3xl text-gray-300"></i>
+      <div
+        class="text-center py-14 px-5 rounded-2xl"
+        style="
+          background: ${colors.surface};
+          border: 1px dashed ${colors.borderLight};
+        "
+      >
+        <div
+          class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+          style="
+            background: rgba(0,77,152,0.1);
+            border: 1px solid rgba(0,77,152,0.22);
+          "
+        >
+          <i
+            class="fa-solid fa-utensils text-xl"
+            style="color: ${colors.blue};"
+          ></i>
         </div>
 
-        <p class="text-gray-500 font-medium mb-2">
-          No food logged today
+        <p class="text-white font-bold mb-2">
+          No entries recorded today
         </p>
 
-        <p class="text-gray-400 text-sm mb-4">
-          Start tracking your nutrition by logging meals or scanning products
+        <p class="text-[#7F8997] text-xs mb-6 max-w-sm mx-auto leading-relaxed">
+          Your food log is empty. Add recipes from the culinary archive or scan products to start tracking.
         </p>
 
-        <div class="flex justify-center gap-3">
-
+        <div class="flex flex-wrap justify-center gap-2.5">
           <button
             type="button"
             data-foodlog-page="meals"
             id="browse_recipes"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all cursor-pointer"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+            style="
+              background: ${colors.blue};
+              color: white;
+              border: 1px solid rgba(255,255,255,0.08);
+            "
           >
-            <i class="fa-solid fa-plus"></i>
-            Browse Recipes
+            <i class="fa-solid fa-compass"></i>
+            Browse Archive
           </button>
 
           <button
             type="button"
             data-foodlog-page="products"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all cursor-pointer"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+            style="
+              background: rgba(255,255,255,0.025);
+              color: white;
+              border: 1px solid ${colors.border};
+            "
           >
-            <i class="fa-solid fa-barcode"></i>
+            <i
+              class="fa-solid fa-barcode"
+              style="color: ${colors.gold};"
+            ></i>
             Scan Product
           </button>
-
         </div>
       </div>
     `;
@@ -1089,26 +1474,20 @@ export const renderFoodLog = (foodLog = []) => {
   }
 
   loggedItemsList.innerHTML = `
-    <div class="space-y-3 max-h-96 overflow-y-auto">
+    <div class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
       ${items
         .map((item) => {
           const image = item?.thumbnail || item?.image || "";
-
           const name = item?.name || "Unknown Food";
-
           const isProduct = item?.type === "product";
-
           const type = isProduct ? "Product" : "Recipe";
 
           const sourceName =
             item?.brand || item?.brands || item?.servings || "";
 
           const calories = normalizeFoodLogNumber(item?.calories);
-
           const protein = normalizeFoodLogNumber(item?.protein);
-
           const carbs = normalizeFoodLogNumber(item?.carbs);
-
           const fat = normalizeFoodLogNumber(item?.fat);
 
           let loggedTime = getCurrentTime();
@@ -1130,98 +1509,126 @@ export const renderFoodLog = (foodLog = []) => {
 
           return `
             <div
-              class="flex items-center justify-between bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-all"
+              class="flex items-center justify-between rounded-xl p-3.5 transition-all"
               data-item-id="${escapeHtml(item?.id ?? "")}"
+              style="
+                background: ${colors.surface};
+                border: 1px solid ${colors.border};
+              "
             >
-
-              <div class="flex items-center gap-4 min-w-0">
-
+              <div class="flex items-center gap-3.5 min-w-0">
                 ${
                   image
                     ? `
                       <img
                         src="${escapeHtml(image)}"
                         alt="${escapeHtml(name)}"
-                        class="w-14 h-14 rounded-xl object-cover shrink-0"
+                        class="w-12 h-12 rounded-lg object-cover shrink-0"
+                        style="border: 1px solid ${colors.border};"
                       />
                     `
                     : `
-                      <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                      <div
+                        class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
+                        style="
+                          background: rgba(0,77,152,0.1);
+                          border: 1px solid rgba(0,77,152,0.2);
+                          color: ${colors.blue};
+                        "
+                      >
                         <i class="fa-solid ${
                           isProduct ? "fa-box" : "fa-utensils"
-                        } text-blue-600 text-xl"></i>
+                        } text-sm"></i>
                       </div>
                     `
                 }
 
                 <div class="min-w-0">
-
-                  <p class="font-semibold text-gray-900 truncate">
+                  <p class="font-semibold text-sm text-white truncate">
                     ${escapeHtml(name)}
                   </p>
 
-                  <p class="text-sm text-gray-500 truncate">
+                  <p class="text-[11px] text-[#7F8997] truncate mt-0.5">
                     ${escapeHtml(productOrRecipeText)}
 
-                    <span class="mx-1">
-                      •
-                    </span>
+                    <span class="mx-1 text-[#3E4652]">•</span>
 
                     <span
-                      class="${
-                        isProduct ? "text-blue-600" : "text-emerald-600"
-                      }"
+                      class="font-medium"
+                      style="
+                        color: ${
+                          isProduct ? colors.blue : colors.gold
+                        };
+                      "
                     >
                       ${type}
                     </span>
                   </p>
 
-                  <p class="text-xs text-gray-400 mt-1">
+                  <p class="text-[10px] text-[#596270] mt-1">
                     ${escapeHtml(loggedTime)}
                   </p>
-
                 </div>
               </div>
 
-              <div class="flex items-center gap-4 shrink-0">
-
+              <div class="flex items-center gap-3 shrink-0">
                 <div class="text-right">
-                  <p class="text-lg font-bold text-emerald-600">
+                  <p class="text-sm font-bold text-white">
                     ${formatFoodLogNumber(calories, 1)}
                   </p>
 
-                  <p class="text-xs text-gray-500">
+                  <p
+                    class="text-[9px] font-bold uppercase tracking-wider"
+                    style="color: ${colors.gold};"
+                  >
                     kcal
                   </p>
                 </div>
 
-                <div class="hidden md:flex gap-2 text-xs text-gray-500">
-
-                  <span class="px-2 py-1 bg-blue-50 rounded">
+                <div class="hidden md:flex gap-1">
+                  <span
+                    class="px-2 py-1 rounded-md text-[9px] font-bold"
+                    style="
+                      background: rgba(0,77,152,0.1);
+                      color: #70B4FF;
+                      border: 1px solid rgba(0,77,152,0.2);
+                    "
+                  >
                     ${formatFoodLogNumber(protein, 0)}g P
                   </span>
 
-                  <span class="px-2 py-1 bg-amber-50 rounded">
+                  <span
+                    class="px-2 py-1 rounded-md text-[9px] font-bold"
+                    style="
+                      background: rgba(237,187,0,0.08);
+                      color: ${colors.gold};
+                      border: 1px solid rgba(237,187,0,0.18);
+                    "
+                  >
                     ${formatFoodLogNumber(carbs, 0)}g C
                   </span>
 
-                  <span class="px-2 py-1 bg-purple-50 rounded">
+                  <span
+                    class="px-2 py-1 rounded-md text-[9px] font-bold"
+                    style="
+                      background: rgba(165,0,68,0.08);
+                      color: #FF709B;
+                      border: 1px solid rgba(165,0,68,0.18);
+                    "
+                  >
                     ${formatFoodLogNumber(fat, 0)}g F
                   </span>
-
                 </div>
 
                 <button
                   type="button"
-                  class="remove-foodlog-btn text-gray-400 hover:text-red-500 transition-all p-2 cursor-pointer"
+                  class="remove-foodlog-btn text-[#687280] hover:text-[#FF709B] hover:bg-[rgba(165,0,68,0.08)] rounded-lg transition-all p-2 cursor-pointer"
                   data-item-id="${escapeHtml(item?.id ?? "")}"
-                  title="Remove item"
+                  title="Remove entry"
                 >
-                  <i class="fa-solid fa-trash-can"></i>
+                  <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
-
               </div>
-
             </div>
           `;
         })
@@ -1235,16 +1642,16 @@ export const renderFoodLogCount = (foodLog = []) => {
 
   const items = getTodayFoodLog(foodLog);
 
-  loggedItemsCount.textContent = `Logged Items (${items.length})`;
+  loggedItemsCount.textContent = `Logged Entries (${items.length})`;
 };
 
-export const renderNutritionSummary = (foodLog = []) => {
+export const renderNutritionSummary = (foodLog = [], calorieTarget = 2000) => {
   const section = document.getElementById("foodlog-today-section");
 
   if (!section) return;
 
   const progressGrid = section.querySelector(
-    ".grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4"
+    ".grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4"
   );
 
   if (!progressGrid) return;
@@ -1256,7 +1663,7 @@ export const renderNutritionSummary = (foodLog = []) => {
   const items = getTodayFoodLog(foodLog);
 
   const goals = {
-    calories: 2000,
+    calories: calorieTarget,
     protein: 50,
     carbs: 250,
     fat: 65,
@@ -1284,14 +1691,13 @@ export const renderNutritionSummary = (foodLog = []) => {
     normalBar,
   }) => {
     const percentage = Math.min(Math.round((value / goal) * 100), 100);
-
     const exceeded = value > goal;
 
     const percentageElement = card.querySelector(
-      ".flex.items-center.justify-between.mb-2 span:last-child"
+      ".flex.items-center.justify-between span:last-child"
     );
 
-    const bar = card.querySelector(".w-full.bg-gray-200 > div");
+    const bar = card.querySelector(".w-full > div");
 
     const valueElement = card.querySelector(
       ".flex.items-center.justify-between.text-xs span:first-child"
@@ -1305,21 +1711,22 @@ export const renderNutritionSummary = (foodLog = []) => {
       percentageElement.textContent = `${percentage}%`;
 
       percentageElement.className = exceeded
-        ? "text-xs text-red-500"
-        : `text-xs ${normalText}`;
+        ? "text-xs text-[#FF709B] font-bold"
+        : `text-xs font-bold ${normalText}`;
     }
 
     if (bar) {
       bar.style.width = `${percentage}%`;
 
       bar.classList.remove(
-        "bg-emerald-500",
-        "bg-blue-500",
-        "bg-amber-500",
-        "bg-purple-500",
+        "bg-emerald-400",
+        "bg-sky-400",
+        "bg-amber-400",
+        "bg-rose-400",
         "bg-red-500"
       );
 
+      bar.style.background = exceeded ? colors.red : "";
       bar.classList.add(exceeded ? "bg-red-500" : normalBar);
     }
 
@@ -1329,8 +1736,8 @@ export const renderNutritionSummary = (foodLog = []) => {
       }`;
 
       valueElement.className = exceeded
-        ? "font-bold text-red-600"
-        : `font-bold ${normalText}`;
+        ? "font-bold text-[#FF709B]"
+        : "font-bold text-white";
     }
 
     if (goalElement) {
@@ -1344,32 +1751,32 @@ export const renderNutritionSummary = (foodLog = []) => {
     card: cards[0],
     value: totals.calories,
     goal: goals.calories,
-    normalText: "text-emerald-600",
-    normalBar: "bg-emerald-500",
+    normalText: "text-[#8FA3B8]",
+    normalBar: "bg-[#004D98]",
   });
 
   updateCard({
     card: cards[1],
     value: totals.protein,
     goal: goals.protein,
-    normalText: "text-blue-600",
-    normalBar: "bg-blue-500",
+    normalText: "text-[#70B4FF]",
+    normalBar: "bg-[#004D98]",
   });
 
   updateCard({
     card: cards[2],
     value: totals.carbs,
     goal: goals.carbs,
-    normalText: "text-amber-600",
-    normalBar: "bg-amber-500",
+    normalText: "text-[#EDBB00]",
+    normalBar: "bg-[#EDBB00]",
   });
 
   updateCard({
     card: cards[3],
     value: totals.fat,
     goal: goals.fat,
-    normalText: "text-purple-600",
-    normalBar: "bg-purple-500",
+    normalText: "text-[#FF709B]",
+    normalBar: "bg-[#A50044]",
   });
 };
 
@@ -1378,7 +1785,8 @@ export const toggleClearFoodLog = (foodLog = []) => {
 
   const items = getTodayFoodLog(foodLog);
 
-  clearFoodLogButton.style.display = items.length > 0 ? "inline-flex" : "none";
+  clearFoodLogButton.style.display =
+    items.length > 0 ? "inline-flex" : "none";
 };
 
 export const renderFoodLogDate = () => {
@@ -1401,64 +1809,86 @@ export const renderWeeklyOverview = (foodLog = []) => {
   container.innerHTML = days
     .map(
       (day) => `
+        <div
+          class="text-center p-3.5 rounded-xl transition-all"
+          style="
+            background: ${
+              day.today
+                ? "rgba(0,77,152,0.1)"
+                : colors.surface
+            };
+            border: 1px solid ${
+              day.today
+                ? "rgba(0,77,152,0.35)"
+                : colors.border
+            };
+          "
+        >
+          <p class="text-[10px] font-bold uppercase tracking-wider text-[#687280] mb-1">
+            ${escapeHtml(day.day)}
+          </p>
+
+          <p class="text-sm font-semibold text-white">
+            ${day.number}
+          </p>
+
           <div
-            class="text-center ${day.today ? "bg-indigo-100 rounded-xl" : ""}"
+            class="mt-3"
+            style="
+              color: ${
+                day.calories > 0
+                  ? colors.gold
+                  : "#424A56"
+              };
+            "
           >
-
-            <p class="text-xs text-gray-500 mb-1">
-              ${escapeHtml(day.day)}
+            <p class="text-base font-bold">
+              ${Math.round(day.calories)}
             </p>
 
-            <p class="text-sm font-medium text-gray-900">
-              ${day.number}
+            <p class="text-[9px] uppercase font-bold tracking-wider opacity-70">
+              kcal
             </p>
-
-            <div
-              class="mt-2 ${
-                day.calories > 0 ? "text-emerald-600" : "text-gray-300"
-              }"
-            >
-
-              <p class="text-lg font-bold">
-                ${Math.round(day.calories)}
-              </p>
-
-              <p class="text-xs">
-                kcal
-              </p>
-
-            </div>
-
-            ${
-              day.items > 0
-                ? `
-                  <p class="text-xs text-gray-400 mt-1">
-                    ${day.items} ${day.items === 1 ? "item" : "items"}
-                  </p>
-                `
-                : ""
-            }
-
           </div>
-        `
+
+          ${
+            day.items > 0
+              ? `
+                <p class="text-[9px] text-[#687280] mt-1.5">
+                  ${day.items}
+                  ${day.items === 1 ? "entry" : "entries"}
+                </p>
+              `
+              : ""
+          }
+        </div>
+      `
     )
     .join("");
 };
 
-export const renderFoodLogStats = (foodLog = []) => {
+export const renderFoodLogStats = (foodLog = [], calorieTarget = 2000) => {
   const section = document.getElementById("foodlog-section");
 
   if (!section) return;
 
   const days = getWeekData(foodLog);
 
-  const weeklyCalories = days.reduce((total, day) => total + day.calories, 0);
+  const weeklyCalories = days.reduce(
+    (total, day) => total + day.calories,
+    0
+  );
 
   const weeklyAverage = Math.round(weeklyCalories / 7);
 
-  const totalItems = days.reduce((total, day) => total + day.items, 0);
+  const totalItems = days.reduce(
+    (total, day) => total + day.items,
+    0
+  );
 
-  const daysOnGoal = days.filter((day) => day.calories >= 2000).length;
+  const daysOnGoal = days.filter(
+    (day) => day.calories >= calorieTarget
+  ).length;
 
   const cards = section.querySelectorAll(
     ".grid.grid-cols-1.md\\:grid-cols-3 > div"
@@ -1467,9 +1897,7 @@ export const renderFoodLogStats = (foodLog = []) => {
   if (cards.length < 3) return;
 
   const average = cards[0].querySelector(".weekly-avg");
-
   const total = cards[1].querySelector(".total-items");
-
   const goal = cards[2].querySelector(".goal");
 
   if (average) {

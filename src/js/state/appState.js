@@ -1,6 +1,27 @@
-const FOOD_LOG_KEY = "nutriplan_food_log";
+const FOOD_LOG_KEY = "jooe_food_log";
+const LEGACY_FOOD_LOG_KEY = "nutriplan_food_log";
+const CALORIE_TARGET_KEY = "jooe_calorie_target";
+const DEFAULT_CALORIE_TARGET = 2000;
 
-const getToday = () => {
+const loadCalorieTarget = () => {
+  try {
+    const target = Number(localStorage.getItem(CALORIE_TARGET_KEY));
+
+    return Number.isFinite(target) && target >= 500 && target <= 10000
+      ? Math.round(target)
+      : DEFAULT_CALORIE_TARGET;
+  } catch {
+    return DEFAULT_CALORIE_TARGET;
+  }
+};
+
+const saveCalorieTarget = (target) => {
+  try {
+    localStorage.setItem(CALORIE_TARGET_KEY, String(target));
+  } catch {}
+};
+
+export const getToday = () => {
   const date = new Date();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -11,13 +32,26 @@ const getToday = () => {
 
 const loadFoodLog = () => {
   try {
-    const saved = localStorage.getItem(FOOD_LOG_KEY);
+    const saved =
+      localStorage.getItem(FOOD_LOG_KEY) ||
+      localStorage.getItem(LEGACY_FOOD_LOG_KEY);
 
     if (!saved) return [];
 
-    const foodLog = JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    const entries = Array.isArray(parsed)
+      ? parsed
+      : Object.values(parsed || {}).flatMap((items) =>
+          Array.isArray(items) ? items : []
+        );
 
-    return Array.isArray(foodLog) ? foodLog : [];
+    return entries
+      .filter((item) => item && typeof item === "object")
+      .map((item) => ({
+        ...item,
+        date: item.date || getToday(),
+        loggedAt: item.loggedAt || new Date().toISOString(),
+      }));
   } catch {
     return [];
   }
@@ -25,7 +59,18 @@ const loadFoodLog = () => {
 
 const saveFoodLog = () => {
   try {
-    localStorage.setItem(FOOD_LOG_KEY, JSON.stringify(state.foodLog));
+    const byDate = state.foodLog.reduce((log, item) => {
+      const date = item?.date || getToday();
+
+      if (!log[date]) {
+        log[date] = [];
+      }
+
+      log[date].push(item);
+      return log;
+    }, {});
+
+    localStorage.setItem(FOOD_LOG_KEY, JSON.stringify(byDate));
   } catch {}
 };
 
@@ -54,9 +99,10 @@ export const state = {
   productTotal: 0,
   productTotalPages: 0,
 
-  currentPage: "meals",
+  currentPage: "home",
 
   foodLog: loadFoodLog(),
+  calorieTarget: loadCalorieTarget(),
 
   isLoading: false,
   error: null,
@@ -147,8 +193,30 @@ export const setError = (error) => {
   state.error = error || null;
 };
 
+export const setCalorieTarget = (target) => {
+  const numericTarget = Number(target);
+
+  if (!Number.isFinite(numericTarget)) {
+    return;
+  }
+
+  state.calorieTarget = Math.min(
+    10000,
+    Math.max(500, Math.round(numericTarget))
+  );
+  saveCalorieTarget(state.calorieTarget);
+};
+
 export const setFoodLog = (foodLog) => {
-  state.foodLog = Array.isArray(foodLog) ? foodLog : [];
+  state.foodLog = Array.isArray(foodLog)
+    ? foodLog
+        .filter((item) => item && typeof item === "object")
+        .map((item) => ({
+          ...item,
+          date: item.date || getToday(),
+          loggedAt: item.loggedAt || new Date().toISOString(),
+        }))
+    : [];
   saveFoodLog();
 };
 
@@ -161,6 +229,7 @@ export const addToFoodLog = (item) => {
       item.id ||
       `item_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     date: item.date || getToday(),
+    loggedAt: item.loggedAt || new Date().toISOString(),
   };
 
   state.foodLog.push(newItem);
@@ -176,5 +245,12 @@ export const removeFromFoodLog = (id) => {
 
 export const clearFoodLog = () => {
   state.foodLog = [];
+  saveFoodLog();
+};
+
+export const clearTodayFoodLog = () => {
+  const today = getToday();
+
+  state.foodLog = state.foodLog.filter((item) => item?.date !== today);
   saveFoodLog();
 };

@@ -1,7 +1,5 @@
 const baseURL = "https://nutriplan-api.vercel.app/api";
 
-const NUTRITION_API_KEY = "FZUBNuHaKQ0VuFbfbqBJAc8NX2eQVRNd5ocwtgk1";
-
 const getErrorMessage = async (res, fallback) => {
   try {
     const data = await res.json();
@@ -10,6 +8,53 @@ const getErrorMessage = async (res, fallback) => {
     return fallback;
   }
 };
+
+const getJsonResponse = async (res, label, isValid = () => true) => {
+  let data;
+
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`${label} returned invalid JSON`);
+  }
+
+  if ((data === null || typeof data !== "object") || !isValid(data)) {
+    throw new Error(`${label} returned an unexpected response shape`);
+  }
+
+  return data;
+};
+
+const isIngredient = (ingredient) =>
+  ingredient &&
+  typeof ingredient === "object" &&
+  typeof ingredient.ingredient === "string" &&
+  typeof ingredient.measure === "string";
+
+const isMeal = (meal) =>
+  meal &&
+  typeof meal === "object" &&
+  typeof meal.id === "string" &&
+  typeof meal.name === "string" &&
+  typeof meal.category === "string" &&
+  (typeof meal.area === "string" || meal.area === null) &&
+  typeof meal.thumbnail === "string" &&
+  Array.isArray(meal.instructions) &&
+  meal.instructions.every((instruction) => typeof instruction === "string") &&
+  Array.isArray(meal.ingredients) &&
+  meal.ingredients.every(isIngredient);
+
+const isMealList = (data) =>
+  Array.isArray(data?.results) && data.results.every(isMeal);
+
+const isProduct = (product) =>
+  product &&
+  typeof product === "object" &&
+  typeof product.barcode === "string" &&
+  typeof product.name === "string" &&
+  typeof product.nutritionGrade === "string" &&
+  product.nutrients &&
+  typeof product.nutrients === "object";
 
 export const searchMeals = async (query = "chicken") => {
   const searchQuery = query.trim() || "chicken";
@@ -24,7 +69,7 @@ export const searchMeals = async (query = "chicken") => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Meal search", isMealList);
 };
 
 export const getCategories = async () => {
@@ -36,7 +81,16 @@ export const getCategories = async () => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Meal categories", (data) =>
+    Array.isArray(data?.results) &&
+    data.results.every(
+      (category) =>
+        category &&
+        typeof category.id === "string" &&
+        typeof category.name === "string" &&
+        typeof category.thumbnail === "string"
+    )
+  );
 };
 
 export const getAreas = async () => {
@@ -48,7 +102,12 @@ export const getAreas = async () => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Meal areas", (data) =>
+    Array.isArray(data?.results) &&
+    data.results.every(
+      (area) => area && typeof area.name === "string"
+    )
+  );
 };
 
 export const getMealById = async (id) => {
@@ -64,7 +123,9 @@ export const getMealById = async (id) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Meal details", (data) =>
+    isMeal(data?.result)
+  );
 };
 
 export const filterMeals = async (filters = {}) => {
@@ -96,7 +157,7 @@ export const filterMeals = async (filters = {}) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Meal filter", isMealList);
 };
 
 export const getRandomMeals = async (count = 1) => {
@@ -110,19 +171,32 @@ export const getRandomMeals = async (count = 1) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Random meals", isMealList);
 };
 
 export const analyzeNutrition = async (recipeData) => {
-  if (!recipeData) {
+  if (
+    !recipeData ||
+    typeof recipeData.recipeName !== "string" ||
+    !Array.isArray(recipeData.ingredients) ||
+    !recipeData.ingredients.every((ingredient) => typeof ingredient === "string")
+  ) {
     throw new Error("Recipe data is required");
+  }
+
+  const nutritionApiKey = window.NUTRIPLAN_NUTRITION_API_KEY;
+
+  if (!nutritionApiKey) {
+    throw new Error(
+      "Nutrition analysis is not configured. Set NUTRIPLAN_NUTRITION_API_KEY in the application environment."
+    );
   }
 
   const res = await fetch(`${baseURL}/nutrition/analyze`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": NUTRITION_API_KEY,
+      "x-api-key": nutritionApiKey,
     },
     body: JSON.stringify(recipeData),
   });
@@ -133,7 +207,11 @@ export const analyzeNutrition = async (recipeData) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(
+    res,
+    "Nutrition analysis",
+    (data) => data?.success === true && data?.data?.perServing
+  );
 };
 
 export const getProductCategories = async (page = 1, limit = 50) => {
@@ -152,7 +230,15 @@ export const getProductCategories = async (page = 1, limit = 50) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Product categories", (data) =>
+    Array.isArray(data?.results) &&
+    data.results.every(
+      (category) =>
+        category &&
+        typeof category.id === "string" &&
+        typeof category.name === "string"
+    )
+  );
 };
 
 export const getProductsByCategory = async (category, page = 1, limit = 24) => {
@@ -174,17 +260,19 @@ export const getProductsByCategory = async (category, page = 1, limit = 24) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Category products", (data) =>
+    Array.isArray(data?.results) && data.results.every(isProduct)
+  );
 };
 
-export const searchProducts = async (query = "", page = 1, limit = 24) => {
+export const searchProducts = async (query = "") => {
   const cleanQuery = query.trim();
 
   if (!cleanQuery) {
     throw new Error("Product search query is required");
   }
 
-  const params = new URLSearchParams({ q: cleanQuery, page, limit });
+  const params = new URLSearchParams({ q: cleanQuery });
 
   const res = await fetch(`${baseURL}/products/search?${params.toString()}`);
 
@@ -194,7 +282,9 @@ export const searchProducts = async (query = "", page = 1, limit = 24) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Product search", (data) =>
+    Array.isArray(data?.results) && data.results.every(isProduct)
+  );
 };
 
 export const getProductByBarcode = async (barcode) => {
@@ -212,5 +302,7 @@ export const getProductByBarcode = async (barcode) => {
     );
   }
 
-  return await res.json();
+  return await getJsonResponse(res, "Barcode product", (data) =>
+    isProduct(data?.result)
+  );
 };

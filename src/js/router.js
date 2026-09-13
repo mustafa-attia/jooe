@@ -1,4 +1,5 @@
 const ROUTES = {
+  home: "home",
   meals: "meals",
   products: "products",
   foodlog: "foodlog",
@@ -13,7 +14,11 @@ const normalizeHash = (hash = window.location.hash) => {
     .split("?")[0]
     .split("#")[0];
 
-  if (!clean || clean === "meals") {
+  if (!clean || clean === "home") {
+    return "/home";
+  }
+
+  if (clean === "meals") {
     return "/meals";
   }
 
@@ -29,11 +34,15 @@ const normalizeHash = (hash = window.location.hash) => {
     return `/${clean}`;
   }
 
-  return "/meals";
+  return "/home";
 };
 
 const getRouteFromHash = () => {
   const normalized = normalizeHash();
+
+  if (normalized === "/home") {
+    return "home";
+  }
 
   if (normalized === "/products") {
     return "products";
@@ -47,7 +56,11 @@ const getRouteFromHash = () => {
     return "meal-details";
   }
 
-  return "meals";
+  if (normalized === "/meals") {
+    return "meals";
+  }
+
+  return "home";
 };
 
 const getMealIdFromHash = () => {
@@ -80,7 +93,7 @@ export const getCurrentMealId = () => {
 
 export const navigate = (path, options = {}) => {
   const cleanPath = String(path || "").replace(/^\/+/, "");
-  const targetHash = `#/${cleanPath}`;
+  const targetHash = `/${cleanPath}`;
 
   if (window.location.hash === targetHash) {
     notifyRouteChange();
@@ -95,7 +108,7 @@ export const navigate = (path, options = {}) => {
 };
 
 export const navigateTo = (route, options = {}) => {
-  const target = ROUTES[route] || ROUTES.meals;
+  const target = ROUTES[route] || ROUTES.home;
   navigate(`/${target}`, options);
 };
 
@@ -147,7 +160,7 @@ export const getRoutes = () => ({
 
 export const initRouter = () => {
   if (!window.location.hash || window.location.hash === "#") {
-    window.location.hash = "#/meals";
+    window.location.hash = "#/home";
   }
   return true;
 };
